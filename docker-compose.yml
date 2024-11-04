@@ -1,0 +1,30 @@
+version: '3'
+services:
+  postgresql:
+    image: postgres:14
+    restart: unless-stopped
+    env_file:
+      - .env/postgresql-postgres.env
+      - .env/postgresql.env
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./setup-postgresql.sh:/docker-entrypoint-initdb.d/setup-postgresql.sh
+      - ./.env/pg-server.crt:/var/lib/postgresql/server.crt
+      - ./.env/pg-server.key:/var/lib/postgresql/server.key
+    command: -c ssl=on -c ssl_cert_file=/var/lib/postgresql/server.crt -c ssl_key_file=/var/lib/postgresql/server.key
+    ports:
+      - "127.0.0.1:5432:5432"
+  databunkerpro:
+    image: registry.databunker.org/databunkerpro:latest
+    restart: unless-stopped
+    env_file:
+      - .env/databunker.env
+    volumes:
+      - ./certs:/databunker/certs
+    #entrypoint: /databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml
+    entrypoint: /bin/sh
+    command: -c "/databunker/bin/databunkerpro -db databunkerdb -conf /databunker/conf/databunker.yaml"
+    depends_on:
+      - postgresql
+    ports:
+      - 3000:3000
