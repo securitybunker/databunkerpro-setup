@@ -9,14 +9,14 @@ fi
 
 apt install -y certbot
 
-certbot certonly -d DOMAIN
+certbot certonly -d $DOMAIN
 
 #Certificate is saved at: /etc/letsencrypt/live/DOMAIN/fullchain.pem
 #Key is saved at:         /etc/letsencrypt/live/DOMAIN/privkey.pem
 
 mkdir -p certs
-cp /etc/letsencrypt/live/DOMAIN/fullchain.pem certs/server.cer
-cp /etc/letsencrypt/live/DOMAIN/privkey.pem certs/server.key
+cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem certs/server.cer
+cp /etc/letsencrypt/live/$DOMAIN/privkey.pem certs/server.key
 
 chmod 444 certs/server.*
 chmod 400 .env/pg*
