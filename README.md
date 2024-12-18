@@ -2,7 +2,7 @@
 
 ## Copy files to remote server
 ```
-scp * root@157.230.105.185:/root/pro
+scp * root@srv18.basebunker.com:/root/pro
 ```
 
 ## Prepare server
@@ -22,10 +22,16 @@ For example: radwan A 157.230.105.185
 cd pro
 ./docker-login.sh
 ./generate-env-files.sh
-./gen-cert.sh radwan.basebunker.com
+./gen-cert.sh srv18.basebunker.com
 ```
 
 ## Start containers
 ```
 hard-reset.sh
+```
+
+## Troubleshoting
+Make sure the operating system is correct
+```
+docker pull registry.databunker.org/databunkerpro:latest
 ```
