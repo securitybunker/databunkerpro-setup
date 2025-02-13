@@ -13,7 +13,7 @@ apt install -y docker.io docker-compose certbot
 ```
 
 ## Update DNS records
-DNN A for basebunker.com
+Add DNS A-record for ``domain.basebunker.com``
 
 For example: radwan A 157.230.105.185
 
