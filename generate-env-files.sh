@@ -22,7 +22,7 @@ echo 'PGSQL_USER_NAME=bunkeruser' >> .env/databunker.env
 echo 'PGSQL_USER_PASS='$PGSQL_USER_PASSWORD >> .env/databunker.env
 echo 'PGSQL_HOST=postgresql' >> .env/databunker.env
 echo 'PGSQL_PORT=5432' >> .env/databunker.env
-echo 'MULTITENANT=yes' >> .env/databunker.env
+echo 'REDIS_HOST=redis' >> .env/databunker.env
 
 echo 'generating ssl sertificate for postgres server'
 rm -rf .env/pg-*
