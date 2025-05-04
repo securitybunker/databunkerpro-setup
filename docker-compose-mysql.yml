@@ -25,6 +25,6 @@ services:
     entrypoint: /bin/sh
     command: -c "/databunker/bin/databunkerpro -db databunkerdb -conf /databunker/conf/databunker.yaml"
     depends_on:
-      - postgresql
+      - mysql
     ports:
       - 3000:3000
