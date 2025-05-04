@@ -12,6 +12,6 @@ else
 fi
 
 echo "Using: $DC"
-$DC down
+$DC -f ./docker-compose-pgsql.yml down
 rm -rf data
-$DC up -d
+$DC -f ./docker-compose-pgsql.yml up -d
