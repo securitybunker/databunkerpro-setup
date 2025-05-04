@@ -1,0 +1,30 @@
+services:
+  mysql:
+    image: mysql/mysql-server
+    env_file:
+      - .env/mysql-root.env
+      - .env/mysql.env
+    restart: unless-stopped
+    volumes:
+      - ./data:/var/lib/mysql
+    command: --max_connections=4096
+  redis:
+    image: redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+  databunkerpro:
+    image: registry.databunker.org/databunkerpro:latest
+    restart: unless-stopped
+    env_file:
+      - .env/databunker.env
+    volumes:
+      - ./databunker.yaml:/databunker/conf/databunker.yaml
+      - ./certs:/databunker/certs
+    #entrypoint: /databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml
+    entrypoint: /bin/sh
+    command: -c "/databunker/bin/databunkerpro -db databunkerdb -conf /databunker/conf/databunker.yaml"
+    depends_on:
+      - postgresql
+    ports:
+      - 3000:3000
