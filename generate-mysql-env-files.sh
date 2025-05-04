@@ -22,3 +22,4 @@ echo 'MYSQL_USER_NAME=bunkeruser' >> .env/databunker.env
 echo 'MYSQL_USER_PASS='$MYSQLUSER >> .env/databunker.env
 echo 'MYSQL_HOST=mysql' >> .env/databunker.env
 echo 'MYSQL_PORT=3306' >> .env/databunker.env
+echo 'REDIS_HOST=redis' >> .env/databunker.env
