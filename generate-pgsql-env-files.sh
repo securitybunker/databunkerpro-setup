@@ -31,14 +31,3 @@ openssl rsa -in .env/pg-privkey.pem -passin pass:abcd -out .env/pg-server.key
 openssl req -x509 -in .env/pg-server.req -text -key .env/pg-server.key -out .env/pg-server.crt
 chmod 400 .env/pg-*
 #sudo chown 999:0 .env/pg-*
-
-echo 'generating .env/databunker-root.env'
-ROOTTOKEN=`uuid 2> /dev/null`
-if [ $? -ne 0 ]; then
-  ROOTTOKEN=`uuidgen`
-fi
-if [ $? -ne 0 ]; then
-  echo "Failed to generate DATABUNKER_ROOTTOKEN"
-else
-  echo 'DATABUNKER_ROOTTOKEN='$ROOTTOKEN > .env/databunker-root.env
-fi
