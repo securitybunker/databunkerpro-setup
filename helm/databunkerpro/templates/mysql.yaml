@@ -1,4 +1,4 @@
-{{- if and (not .Values.database.external) (eq .Values.database.type "mysql") }}
+{{- if and (not .Values.database.external) (eq .Values.database.type "mysql") (.Values.database.internal.mysql.enabled) }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

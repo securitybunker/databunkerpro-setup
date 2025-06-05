@@ -38,13 +38,13 @@ spec:
                 name: {{ include "databunkerpro.fullname" . }}-env
           env:
             - name: DATABUNKER_WRAPPINGKEY_FILE
-              value: "/var/run/secrets/kubernetes.io/serviceaccount/wrapping-key"
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/wrapping-key/wrapping-key"
             {{- if eq .Values.database.type "postgresql" }}
             - name: PGSQL_USER_PASS_FILE
-              value: "/var/run/secrets/kubernetes.io/serviceaccount/postgres-password"
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/postgres-password/postgres-password"
             {{- else if eq .Values.database.type "mysql" }}
             - name: MYSQL_USER_PASS_FILE
-              value: "/var/run/secrets/kubernetes.io/serviceaccount/mysql-password"
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/mysql-password/mysql-password"
             {{- end }}
             {{- if .Values.redis.auth.password }}
             - name: REDIS_PASSWORD
