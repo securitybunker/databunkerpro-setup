@@ -95,6 +95,7 @@ database:
         database: databunker
         username: databunker
         password: ""  # Will be auto-generated if not set
+        rootPassword: ""  # Will be auto-generated if not set
 
 # Redis configuration
 redis:
