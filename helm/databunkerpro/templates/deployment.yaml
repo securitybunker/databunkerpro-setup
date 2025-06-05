@@ -9,6 +9,7 @@ spec:
   selector:
     matchLabels:
       {{- include "databunkerpro.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: databunkerpro
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -17,6 +18,7 @@ spec:
       {{- end }}
       labels:
         {{- include "databunkerpro.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: databunkerpro
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
