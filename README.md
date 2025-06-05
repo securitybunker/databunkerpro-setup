@@ -6,9 +6,9 @@ This repository contains a Helm chart for deploying DatabunkerPro, a privacy vau
 
 ### Using Docker Compose
 
-DatabunkerPro can also be deployed using Docker Compose. We provide two options: MySQL and PostgreSQL.
+DatabunkerPro can also be deployed using Docker Compose. We provide two options: Percona MySQL 8 and PostgreSQL.
 
-#### Using MySQL
+#### Using Percona MySQL 8
 
 1. Navigate to the MySQL Docker Compose directory:
 ```bash
@@ -50,9 +50,9 @@ The `generate-env-files.sh` script will:
 
 ### Using Helm Charts
 
-#### Using Internal MySQL
+#### Using Internal MySQL (Percona 8)
 
-To install DatabunkerPro with an internal MySQL database:
+To install DatabunkerPro with an internal Percona MySQL 8 database:
 
 ```bash
 helm install databunkerpro ./helm/databunkerpro \
@@ -85,7 +85,7 @@ helm install databunkerpro ./helm/databunkerpro \
   --set database.externalConfig.password=your-password
 ```
 
-##### For MySQL:
+##### For MySQL (Percona 8):
 
 ```bash
 helm install databunkerpro ./helm/databunkerpro \

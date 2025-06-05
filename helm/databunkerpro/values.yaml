@@ -79,8 +79,8 @@ database:
     mysql:
       enabled: false
       image:
-        repository: mysql
-        tag: "8.0"
+        repository: percona
+        tag: "8"
       persistence:
         enabled: true
         size: 8Gi
