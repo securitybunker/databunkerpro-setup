@@ -30,8 +30,8 @@ ingress:
   # host: chart-example.local
   annotations:
     kubernetes.io/ingress.class: nginx
-  tls:
-    secretName: databunker-tls
+  # tls:
+  #   secretName: databunker-tls
 
 resources: {}
 
