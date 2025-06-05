@@ -1,37 +1,106 @@
-# databunkerpro-setup
+# DatabunkerPro Setup
 
-## Copy files to remote server
-```
-scp * root@srv18.basebunker.com:/root/pro
+This repository contains a Helm chart for deploying DatabunkerPro, a privacy vault for personal data.
+
+## Installation
+
+### Using Docker Compose
+
+DatabunkerPro can also be deployed using Docker Compose. We provide two options: MySQL and PostgreSQL.
+
+#### Using MySQL
+
+1. Navigate to the MySQL Docker Compose directory:
+```bash
+cd docker-compose-mysql
 ```
 
-## Prepare server
-```
-apt -y update
-apt -y upgrade
-apt install -y docker.io docker-compose certbot
-```
-
-## Update DNS records
-Add DNS A-record for ``domain.basebunker.com``
-
-For example: radwan A 157.230.105.185
-
-## Continue with the setup
-```
-cd pro
-./docker-login.sh
+2. Generate the required environment files:
+```bash
 ./generate-env-files.sh
-./gen-cert.sh srv18.basebunker.com
 ```
 
-## Start containers
-```
-hard-reset.sh
+3. Start the services:
+```bash
+docker compose up -d
 ```
 
-## Troubleshoting
-Make sure the operating system is correct
+#### Using PostgreSQL
+
+1. Navigate to the PostgreSQL Docker Compose directory:
+```bash
+cd docker-compose-pgsql
 ```
-docker pull registry.databunker.org/databunkerpro:latest
+
+2. Generate the required environment files:
+```bash
+./generate-env-files.sh
 ```
+
+3. Start the services:
+```bash
+docker compose up -d
+```
+
+The `generate-env-files.sh` script will:
+- Create necessary directories
+- Generate secure random passwords
+- Create environment files for MySQL/PostgreSQL and DatabunkerPro
+- Set up proper permissions
+
+### Using Helm Charts
+
+#### Using Internal MySQL
+
+To install DatabunkerPro with an internal MySQL database:
+
+```bash
+helm install databunkerpro ./helm/databunkerpro \
+  --set database.type=mysql \
+  --set database.internal.mysql.enabled=true
+```
+
+#### Using Internal PostgreSQL
+
+To install DatabunkerPro with an internal PostgreSQL database:
+
+```bash
+helm install databunkerpro ./helm/databunkerpro \
+  --set database.type=postgresql \
+  --set database.internal.postgresql.enabled=true
+```
+
+#### Using Remote Database (RDS)
+
+To install DatabunkerPro with a remote database (e.g., AWS RDS):
+
+##### For PostgreSQL:
+
+```bash
+helm install databunkerpro ./helm/databunkerpro \
+  --set database.external=true \
+  --set database.type=postgresql \
+  --set database.externalConfig.host=your-rds-host \
+  --set database.externalConfig.user=your-user \
+  --set database.externalConfig.password=your-password
+```
+
+##### For MySQL:
+
+```bash
+helm install databunkerpro ./helm/databunkerpro \
+  --set database.external=true \
+  --set database.type=mysql \
+  --set database.externalConfig.host=your-rds-host \
+  --set database.externalConfig.user=your-user \
+  --set database.externalConfig.password=your-password
+```
+
+## Configuration
+
+You can customize the deployment by modifying the `values.yaml` file or by using the `--set` flag with `helm install`.
+
+## Additional Resources
+
+- [DatabunkerPro Documentation](https://databunker.org/docs)
+- [Helm Documentation](https://helm.sh/docs)
