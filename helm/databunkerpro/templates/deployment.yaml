@@ -82,6 +82,11 @@ spec:
             - name: wrapping-key
               mountPath: /etc/databunker/wrapping.key
               subPath: wrapping.key
+          args:
+            - "-db"
+            - "databunkerdb"
+            - "-conf"
+            - "/databunker/conf/databunker.yaml"
       volumes:
         - name: config
           configMap:
