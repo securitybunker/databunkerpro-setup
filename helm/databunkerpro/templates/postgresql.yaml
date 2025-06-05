@@ -30,6 +30,13 @@ spec:
         {{- include "databunkerpro.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: postgresql
     spec:
+      initContainers:
+        - name: init-chown-data
+          image: busybox
+          command: ["sh", "-c", "chown -R 999:999 /var/lib/postgresql/data/pgdata"]
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
       containers:
         - name: postgresql
           image: "{{ .Values.database.internal.postgresql.image.repository }}:{{ .Values.database.internal.postgresql.image.tag }}"
@@ -47,6 +54,8 @@ spec:
                 secretKeyRef:
                   name: {{ include "databunkerpro.fullname" . }}-db
                   key: password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
