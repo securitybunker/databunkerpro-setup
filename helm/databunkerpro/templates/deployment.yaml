@@ -37,11 +37,11 @@ spec:
             - configMapRef:
                 name: {{ include "databunkerpro.fullname" . }}-env
           env:
-            - name: DATABUNKER_WRAPPINGKEY
+            - name: DATABUNKER_WRAPPINGKEY_FILE
               value: "/var/run/secrets/kubernetes.io/serviceaccount/wrapping-key"
             {{- if .Values.database.external }}
             {{- if eq .Values.database.type "postgresql" }}
-            - name: PGSQL_PASSWORD_FILE
+            - name: PGSQL_USER_PASS_FILE
               value: "/var/run/secrets/kubernetes.io/serviceaccount/postgres-password"
             {{- else if eq .Values.database.type "mysql" }}
             - name: MYSQL_USER_PASS_FILE
@@ -100,7 +100,7 @@ spec:
           secret:
             secretName: {{ include "databunkerpro.fullname" . }}-wrapping-key
             items:
-              - key: wrapping-key
+              - key: wrapping.key
                 path: wrapping-key
         {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") }}
         - name: mysql-password
