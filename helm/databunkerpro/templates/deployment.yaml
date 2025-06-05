@@ -41,13 +41,10 @@ spec:
               value: "/var/run/secrets/kubernetes.io/serviceaccount/wrapping-key"
             {{- if .Values.database.external }}
             {{- if eq .Values.database.type "postgresql" }}
-            - name: PGSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "databunkerpro.fullname" . }}-db
-                  key: password
+            - name: PGSQL_PASSWORD_FILE
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/postgres-password"
             {{- else if eq .Values.database.type "mysql" }}
-            - name: MYSQL_PASSWORD_FILE
+            - name: MYSQL_USER_PASS_FILE
               value: "/var/run/secrets/kubernetes.io/serviceaccount/mysql-password"
             {{- end }}
             {{- end }}
@@ -84,6 +81,11 @@ spec:
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount/mysql-password
               readOnly: true
             {{- end }}
+            {{- if and (not .Values.database.external) (eq .Values.database.type "postgresql") }}
+            - name: postgres-password
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount/postgres-password
+              readOnly: true
+            {{- end }}
           command: ["/databunker/bin/databunkerpro"]
           args:
             - "-db"
@@ -107,4 +109,12 @@ spec:
             items:
               - key: password
                 path: mysql-password
+        {{- end }}
+        {{- if and (not .Values.database.external) (eq .Values.database.type "postgresql") }}
+        - name: postgres-password
+          secret:
+            secretName: {{ include "databunkerpro.fullname" . }}-db
+            items:
+              - key: password
+                path: postgres-password
         {{- end }} 
