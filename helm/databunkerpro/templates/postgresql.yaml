@@ -1,0 +1,85 @@
+{{- if and (not .Values.database.external) (eq .Values.database.type "postgresql") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "databunkerpro.fullname" . }}-postgresql
+  labels:
+    {{- include "databunkerpro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "databunkerpro.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: postgresql
+  template:
+    metadata:
+      labels:
+        {{- include "databunkerpro.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: postgresql
+    spec:
+      containers:
+        - name: postgresql
+          image: "{{ .Values.database.internal.postgresql.image.repository }}:{{ .Values.database.internal.postgresql.image.tag }}"
+          ports:
+            - name: postgresql
+              containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.database.internal.postgresql.auth.database | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.database.internal.postgresql.auth.username | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "databunkerpro.fullname" . }}-db
+                  key: password
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            {{- toYaml .Values.database.internal.postgresql.resources | nindent 12 }}
+      volumes:
+        - name: data
+          {{- if .Values.database.internal.postgresql.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "databunkerpro.fullname" . }}-postgresql
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "databunkerpro.fullname" . }}-postgresql
+  labels:
+    {{- include "databunkerpro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: postgresql
+      protocol: TCP
+      name: postgresql
+  selector:
+    {{- include "databunkerpro.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+{{- if .Values.database.internal.postgresql.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "databunkerpro.fullname" . }}-postgresql
+  labels:
+    {{- include "databunkerpro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.database.internal.postgresql.persistence.size }}
+{{- end }}
+{{- end }} 

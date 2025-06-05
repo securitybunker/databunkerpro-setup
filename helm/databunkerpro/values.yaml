@@ -1,0 +1,132 @@
+# Default values for databunkerpro
+replicaCount: 1
+
+image:
+  repository: securitybunker/databunkerpro
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources: {}
+
+# Database configuration
+database:
+  # Set to true to use external database (RDS, etc.)
+  external: false
+  
+  # Database type (postgresql or mysql)
+  type: postgresql
+  
+  # External database configuration
+  externalConfig:
+    host: ""
+    port: 5432
+    name: databunker
+    user: ""
+    password: ""
+    sslMode: require
+  
+  # Internal database configuration (used when external: false)
+  internal:
+    postgresql:
+      enabled: true
+      image:
+        repository: postgres
+        tag: "14"
+      persistence:
+        enabled: true
+        size: 8Gi
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "250m"
+        limits:
+          memory: "512Mi"
+          cpu: "500m"
+      auth:
+        database: databunker
+        username: databunker
+        password: ""  # Will be auto-generated if not set
+    
+    mysql:
+      enabled: false
+      image:
+        repository: mysql
+        tag: "8.0"
+      persistence:
+        enabled: true
+        size: 8Gi
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "250m"
+        limits:
+          memory: "512Mi"
+          cpu: "500m"
+      auth:
+        database: databunker
+        username: databunker
+        password: ""  # Will be auto-generated if not set
+
+# Redis configuration
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: "7"
+  persistence:
+    enabled: false
+    size: 8Gi
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "1Gi"
+      cpu: "200m"
+  auth:
+    password: ""  # Will be auto-generated if not set
+
+# DatabunkerPro configuration
+config:
+  # Wrapping key for encryption
+  wrappingKey: ""  # Will be auto-generated if not set
+  
+  # DatabunkerPro configuration
+  databunker:
+    # Default configuration that will be mounted as databunker.yaml
+    # Users can override this in their values
+    port: 3000
+    logLevel: info
+    sessionSecret: ""  # Will be auto-generated if not set
+    cors:
+      enabled: true
+      allowedOrigins: ["*"]

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "databunkerpro.fullname" . }}-config
+  labels:
+    {{- include "databunkerpro.labels" . | nindent 4 }}
+data:
+  databunker.yaml: |
+    port: {{ .Values.config.databunker.port }}
+    logLevel: {{ .Values.config.databunker.logLevel }}
+    sessionSecret: {{ .Values.config.databunker.sessionSecret | default (randAlphaNum 32) | quote }}
+    
+    cors:
+      enabled: {{ .Values.config.databunker.cors.enabled }}
+      allowedOrigins: {{ .Values.config.databunker.cors.allowedOrigins | toJson }}
+    

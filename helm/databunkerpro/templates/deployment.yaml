@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "databunkerpro.fullname" . }}
+  labels:
+    {{- include "databunkerpro.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "databunkerpro.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "databunkerpro.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "databunkerpro.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "databunkerpro.fullname" . }}-env
+          env:
+            - name: DATABUNKER_WRAPPINGKEY
+              value: "/etc/databunker/wrapping.key"
+            {{- if .Values.database.external }}
+            {{- if eq .Values.database.type "postgresql" }}
+            - name: PGSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "databunkerpro.fullname" . }}-db
+                  key: password
+            {{- else if eq .Values.database.type "mysql" }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "databunkerpro.fullname" . }}-db
+                  key: password
+            {{- end }}
+            {{- end }}
+            {{- if .Values.redis.auth.password }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "databunkerpro.fullname" . }}-redis
+                  key: password
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.config.databunker.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/databunker/databunker.yaml
+              subPath: databunker.yaml
+            - name: wrapping-key
+              mountPath: /etc/databunker/wrapping.key
+              subPath: wrapping.key
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "databunkerpro.fullname" . }}-config
+        - name: wrapping-key
+          secret:
+            secretName: {{ include "databunkerpro.fullname" . }}-wrapping-key 
