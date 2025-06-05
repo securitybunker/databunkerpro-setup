@@ -5,7 +5,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 16G
+          memory: 8G
     env_file:
       - .env/mysql-root.env
       - .env/mysql.env
@@ -24,7 +24,7 @@ services:
     env_file:
       - .env/databunker.env
     volumes:
-      - ./databunker.yaml:/databunker/conf/databunker.yaml
+      - ../databunker.yaml:/databunker/conf/databunker.yaml
       - ./certs:/databunker/certs
     #entrypoint: /databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml
     entrypoint: /bin/sh

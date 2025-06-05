@@ -24,7 +24,7 @@ services:
     env_file:
       - .env/databunker.env
     volumes:
-      - ./databunker.yaml:/databunker/conf/databunker.yaml
+      - ../databunker.yaml:/databunker/conf/databunker.yaml
       - ./certs:/databunker/certs
     #entrypoint: /databunker/bin/databunker -db databunkerdb -conf /databunker/conf/databunker.yaml
     entrypoint: /bin/sh

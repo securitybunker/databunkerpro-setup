@@ -12,9 +12,8 @@ else
 fi
 
 echo "Using: $DC"
-$DC -f ./docker-compose-pgsql.yml down
-$DC -f ./docker-compose-mysql.yml down
+$DC -f ./docker-compose.yml down
 sudo rm -rf data
 mkdir data
 chmod 777 data
-$DC -f ./docker-compose-pgsql.yml up -d
+$DC -f ./docker-compose.yml up -d
