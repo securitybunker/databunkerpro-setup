@@ -92,7 +92,7 @@ database:
           memory: "512Mi"
           cpu: "500m"
       auth:
-        database: databunker
+        database: databunkerdb
         username: databunker
         password: ""  # Will be auto-generated if not set
         rootPassword: ""  # Will be auto-generated if not set
