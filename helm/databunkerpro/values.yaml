@@ -47,7 +47,7 @@ database:
   externalConfig:
     host: ""
     port: 5432
-    name: databunker
+    name: databunkerdb
     user: ""
     password: ""
     sslMode: require

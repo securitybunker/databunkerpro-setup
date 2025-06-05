@@ -1,4 +1,16 @@
 {{- if and (not .Values.database.external) (eq .Values.database.type "postgresql") }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "databunkerpro.fullname" . }}-postgresql-init
+  labels:
+    {{- include "databunkerpro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+data:
+  init.sql: |
+    CREATE ROLE mtenant NOSUPERUSER NOLOGIN;
+    GRANT mtenant TO {{ .Values.database.internal.postgresql.auth.username }};
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -38,6 +50,8 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
           resources:
             {{- toYaml .Values.database.internal.postgresql.resources | nindent 12 }}
       volumes:
@@ -48,6 +62,9 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+        - name: init-scripts
+          configMap:
+            name: {{ include "databunkerpro.fullname" . }}-postgresql-init
 ---
 apiVersion: v1
 kind: Service
