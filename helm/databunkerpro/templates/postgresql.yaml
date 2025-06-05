@@ -33,7 +33,7 @@ spec:
       initContainers:
         - name: init-chown-data
           image: busybox
-          command: ["sh", "-c", "chown -R 999:999 /var/lib/postgresql/data/pgdata"]
+          command: ["sh", "-c", "mkdir -p /var/lib/postgresql/data/pgdata; chown -R 999:999 /var/lib/postgresql/data/pgdata"]
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
