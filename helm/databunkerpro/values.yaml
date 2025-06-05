@@ -127,7 +127,3 @@ config:
     # Users can override this in their values
     port: 3000
     logLevel: info
-    sessionSecret: ""  # Will be auto-generated if not set
-    cors:
-      enabled: true
-      allowedOrigins: ["*"]
