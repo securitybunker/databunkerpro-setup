@@ -20,19 +20,19 @@ data:
   {{- end }}
   {{- else }}
   {{- if eq .Values.database.type "postgresql" }}
-  PGSQL_HOST: {{ include "databunkerpro.fullname" . }}-postgresql
+  PGSQL_HOST: "{{ include "databunkerpro.fullname" . }}-postgresql"
   PGSQL_PORT: "5432"
   PGSQL_DATABASE: {{ .Values.database.internal.postgresql.auth.database | quote }}
   PGSQL_USER_NAME: {{ .Values.database.internal.postgresql.auth.username | quote }}
   PGSQL_SSL_MODE: "disable"
   {{- else if eq .Values.database.type "mysql" }}
-  MYSQL_HOST: {{ include "databunkerpro.fullname" . }}-mysql
+  MYSQL_HOST: "{{ include "databunkerpro.fullname" . }}-mysql"
   MYSQL_PORT: "3306"
   MYSQL_DATABASE: {{ .Values.database.internal.mysql.auth.database | quote }}
   MYSQL_USER_NAME: {{ .Values.database.internal.mysql.auth.username | quote }}
   {{- end }}
   {{- end }}
-  REDIS_HOST: {{ include "databunkerpro.fullname" . }}-redis
+  REDIS_HOST: "{{ include "databunkerpro.fullname" . }}-redis"
   REDIS_PORT: "6379"
   {{- if .Values.redis.auth.password }}
   REDIS_PASSWORD: {{ .Values.redis.auth.password | quote }}

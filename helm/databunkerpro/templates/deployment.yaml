@@ -98,7 +98,7 @@ spec:
           secret:
             secretName: {{ include "databunkerpro.fullname" . }}-wrapping-key
             items:
-              - key: wrapping.key
+              - key: wrapping-key
                 path: wrapping-key
         {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") (.Values.database.internal.mysql.enabled) }}
         - name: mysql-password
