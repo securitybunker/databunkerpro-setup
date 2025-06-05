@@ -1,12 +1,13 @@
 {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "databunkerpro.fullname" . }}-mysql
   labels:
     {{- include "databunkerpro.labels" . | nindent 4 }}
     app.kubernetes.io/component: mysql
 spec:
+  serviceName: {{ include "databunkerpro.fullname" . }}-mysql
   replicas: 1
   selector:
     matchLabels:
@@ -18,13 +19,6 @@ spec:
         {{- include "databunkerpro.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: mysql
     spec:
-      initContainers:
-        - name: init-chown-data
-          image: busybox
-          command: ["chown", "-R", "999:999", "/var/lib/mysql"]
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/mysql
       containers:
         - name: mysql
           image: "{{ .Values.database.internal.mysql.image.repository }}:{{ .Values.database.internal.mysql.image.tag }}"
@@ -56,14 +50,40 @@ spec:
             runAsUser: 999
             runAsGroup: 999
             fsGroup: 999
-      volumes:
-        - name: data
-          {{- if .Values.database.internal.mysql.persistence.enabled }}
-          persistentVolumeClaim:
-            claimName: {{ include "databunkerpro.fullname" . }}-mysql
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
+          readinessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+                - -u
+                - root
+                - -p${MYSQL_ROOT_PASSWORD}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+                - -u
+                - root
+                - -p${MYSQL_ROOT_PASSWORD}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.database.internal.mysql.persistence.size }}
 ---
 apiVersion: v1
 kind: Service
@@ -82,20 +102,4 @@ spec:
   selector:
     {{- include "databunkerpro.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: mysql
-{{- if .Values.database.internal.mysql.persistence.enabled }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ include "databunkerpro.fullname" . }}-mysql
-  labels:
-    {{- include "databunkerpro.labels" . | nindent 4 }}
-    app.kubernetes.io/component: mysql
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ .Values.database.internal.mysql.persistence.size }}
-{{- end }}
 {{- end }} 

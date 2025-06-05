@@ -82,6 +82,7 @@ spec:
             - name: wrapping-key
               mountPath: /etc/databunker/wrapping.key
               subPath: wrapping.key
+          command: ["/databunker/bin/databunkerpro"]
           args:
             - "-db"
             - "databunkerdb"
