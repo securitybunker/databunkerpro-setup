@@ -38,7 +38,7 @@ spec:
                 name: {{ include "databunkerpro.fullname" . }}-env
           env:
             - name: DATABUNKER_WRAPPINGKEY
-              value: "/etc/databunker/wrapping.key"
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/wrapping-key"
             {{- if .Values.database.external }}
             {{- if eq .Values.database.type "postgresql" }}
             - name: PGSQL_PASSWORD
@@ -47,11 +47,8 @@ spec:
                   name: {{ include "databunkerpro.fullname" . }}-db
                   key: password
             {{- else if eq .Values.database.type "mysql" }}
-            - name: MYSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "databunkerpro.fullname" . }}-db
-                  key: password
+            - name: MYSQL_PASSWORD_FILE
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/mysql-password"
             {{- end }}
             {{- end }}
             {{- if .Values.redis.auth.password }}
@@ -80,8 +77,13 @@ spec:
               mountPath: /etc/databunker/databunker.yaml
               subPath: databunker.yaml
             - name: wrapping-key
-              mountPath: /etc/databunker/wrapping.key
-              subPath: wrapping.key
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount/wrapping-key
+              readOnly: true
+            {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") }}
+            - name: mysql-password
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount/mysql-password
+              readOnly: true
+            {{- end }}
           command: ["/databunker/bin/databunkerpro"]
           args:
             - "-db"
@@ -94,4 +96,15 @@ spec:
             name: {{ include "databunkerpro.fullname" . }}-config
         - name: wrapping-key
           secret:
-            secretName: {{ include "databunkerpro.fullname" . }}-wrapping-key 
+            secretName: {{ include "databunkerpro.fullname" . }}-wrapping-key
+            items:
+              - key: wrapping-key
+                path: wrapping-key
+        {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") }}
+        - name: mysql-password
+          secret:
+            secretName: {{ include "databunkerpro.fullname" . }}-db
+            items:
+              - key: password
+                path: mysql-password
+        {{- end }} 
