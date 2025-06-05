@@ -18,6 +18,13 @@ spec:
         {{- include "databunkerpro.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: mysql
     spec:
+      initContainers:
+        - name: init-chown-data
+          image: busybox
+          command: ["chown", "-R", "999:999", "/var/lib/mysql"]
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
       containers:
         - name: mysql
           image: "{{ .Values.database.internal.mysql.image.repository }}:{{ .Values.database.internal.mysql.image.tag }}"
@@ -45,6 +52,10 @@ spec:
               mountPath: /var/lib/mysql
           resources:
             {{- toYaml .Values.database.internal.mysql.resources | nindent 12 }}
+          securityContext:
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
       volumes:
         - name: data
           {{- if .Values.database.internal.mysql.persistence.enabled }}
