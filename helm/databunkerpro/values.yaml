@@ -10,7 +10,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  create: true
+  create: false  # Disabled by default
   name: ""
   annotations: {}
 
