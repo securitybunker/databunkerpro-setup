@@ -19,7 +19,7 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
   databunkerpro:
-    image: registry.databunker.org/databunkerpro:latest
+    image: securitybunker/databunkerpro:latest
     restart: unless-stopped
     env_file:
       - .env/databunker.env
