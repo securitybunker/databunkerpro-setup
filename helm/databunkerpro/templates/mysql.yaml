@@ -37,6 +37,7 @@ spec:
       containers:
         - name: mysql
           image: "{{ .Values.database.internal.mysql.image.repository }}:{{ .Values.database.internal.mysql.image.tag }}"
+          command: ["mysqld", "--bind-address=0.0.0.0"]
           ports:
             - name: mysql
               containerPort: 3306
@@ -66,7 +67,6 @@ spec:
           securityContext:
             runAsUser: 999
             runAsGroup: 999
-            fsGroup: 999
           readinessProbe:
             exec:
               command:
