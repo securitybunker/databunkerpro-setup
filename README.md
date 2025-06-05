@@ -96,6 +96,20 @@ helm install databunkerpro ./helm/databunkerpro \
   --set database.externalConfig.password=your-password
 ```
 
+#### Exposing DatabunkerPro via Ingress
+
+To expose DatabunkerPro via Ingress, set your custom host:
+
+```bash
+helm upgrade databunkerpro ./helm/databunkerpro \
+  --set ingress.host=databunker.your-domain.com
+```
+
+Make sure to:
+1. Replace `databunker.your-domain.com` with your actual domain
+2. Have an Ingress controller (like NGINX Ingress Controller) installed
+3. Have cert-manager installed if you want automatic SSL/TLS certificate management
+
 ## Configuration
 
 You can customize the deployment by modifying the `values.yaml` file or by using the `--set` flag with `helm install`.
