@@ -37,24 +37,10 @@ spec:
       containers:
         - name: mysql
           image: "{{ .Values.database.internal.mysql.image.repository }}:{{ .Values.database.internal.mysql.image.tag }}"
-          # command: ["mysqld", "--bind-address=0.0.0.0"]
           resources:
-            requests:
-              memory: "2Gi"
-              cpu: "0.5"
-            limits:
-              memory: "4Gi"  # Adjust based on available node memory
-              cpu: "2"
+            {{- toYaml .Values.database.internal.mysql.resources | nindent 12 }}
           args:
-            - "--bind-address=0.0.0.0"
-            - "--max_connections=256"
-            - "--innodb_buffer_pool_size=3G"
-            - "--innodb_log_file_size=256M"
-            - "--innodb_log_buffer_size=16M"
-            - "--innodb_flush_log_at_trx_commit=1"
-            - "--innodb_flush_method=O_DIRECT"
-            - "--innodb_file_per_table=1"
-          #  - "--innodb_file_format=Barracuda"
+            {{- toYaml .Values.database.internal.mysql.args | nindent 12 }}
           ports:
             - name: mysql
               containerPort: 3306

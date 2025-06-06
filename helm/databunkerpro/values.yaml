@@ -84,11 +84,21 @@ database:
         size: 8Gi
       resources:
         requests:
-          memory: "256Mi"
-          cpu: "250m"
-        limits:
-          memory: "512Mi"
+          memory: "2Gi"
           cpu: "500m"
+        limits:
+          memory: "4Gi"
+          cpu: "1"
+      args:
+        - "--bind-address=0.0.0.0"
+        - "--max_connections=256"
+        - "--innodb_buffer_pool_size=3G"
+        - "--innodb_log_file_size=256M"
+        - "--innodb_log_buffer_size=16M"
+        - "--innodb_flush_log_at_trx_commit=1"
+        - "--innodb_flush_method=O_DIRECT"
+        - "--innodb_file_per_table=1"
+      #  - "--innodb_file_format=Barracuda"
       auth:
         database: databunkerdb
         username: bunkeruser

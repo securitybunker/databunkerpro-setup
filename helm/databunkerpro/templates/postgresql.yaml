@@ -41,12 +41,7 @@ spec:
         - name: postgresql
           image: "{{ .Values.database.internal.postgresql.image.repository }}:{{ .Values.database.internal.postgresql.image.tag }}"
           resources:
-            requests:
-              memory: "2Gi"
-              cpu: "0.5"
-            limits:
-              memory: "4Gi"  # Adjust based on available node memory
-              cpu: "2"
+            {{- toYaml .Values.database.internal.postgresql.resources | nindent 12 }}
           ports:
             - name: postgresql
               containerPort: 5432
@@ -68,8 +63,6 @@ spec:
               mountPath: /var/lib/postgresql/data
             - name: init-scripts
               mountPath: /docker-entrypoint-initdb.d
-          resources:
-            {{- toYaml .Values.database.internal.postgresql.resources | nindent 12 }}
       volumes:
         - name: data
           {{- if .Values.database.internal.postgresql.persistence.enabled }}
