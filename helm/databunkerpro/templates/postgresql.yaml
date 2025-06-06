@@ -40,6 +40,13 @@ spec:
       containers:
         - name: postgresql
           image: "{{ .Values.database.internal.postgresql.image.repository }}:{{ .Values.database.internal.postgresql.image.tag }}"
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "0.5"
+            limits:
+              memory: "4Gi"  # Adjust based on available node memory
+              cpu: "2"
           ports:
             - name: postgresql
               containerPort: 5432
