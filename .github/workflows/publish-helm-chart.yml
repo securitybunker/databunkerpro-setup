@@ -1,0 +1,38 @@
+name: Publish Helm Chart
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'helm/**'
+      - '.github/workflows/publish-helm-chart.yml'
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Create Release Package
+        run: |
+          cd helm/databunkerpro
+          helm package .
+          mv databunkerpro-*.tgz ../../
+
+      - name: Publish to GitHub Packages
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+          helm push databunkerpro-*.tgz oci://ghcr.io/${{ github.repository_owner }}/helm-charts 
