@@ -76,6 +76,24 @@ Make sure to:
 2. Have an Ingress controller (like NGINX Ingress Controller) installed
 3. Have cert-manager installed if you want automatic SSL/TLS certificate management
 
+#### Using Custom Values File
+
+For more complex configurations, you can create your own values file based on the default configuration:
+
+```bash
+# Download the default values file
+helm show values databunkerpro/databunkerpro > my-values.yaml
+
+# Edit the values file to match your needs
+# Then install or upgrade using your custom values
+helm install databunkerpro databunkerpro/databunkerpro -f my-values.yaml
+```
+
+This approach is recommended when you need to:
+* Configure multiple parameters
+* Maintain consistent configuration across deployments
+* Version control your configuration
+
 ### Using Docker Compose
 
 DatabunkerPro can also be deployed using Docker Compose. We provide two options: Percona MySQL 8 and PostgreSQL.
