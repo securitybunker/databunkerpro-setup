@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'helm/**'
       - '.github/workflows/publish-helm-chart.yml'
@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      pages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +33,19 @@ jobs:
           helm package .
           mv databunkerpro-*.tgz ../../
 
-      - name: Publish to GitHub Packages
+      - name: Create Helm Repository
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
-          helm push databunkerpro-*.tgz oci://ghcr.io/${{ github.repository_owner }}/helm-charts 
+          # Create a temporary directory for the repository
+          mkdir -p helm-repo
+          # Copy the chart package
+          cp databunkerpro-*.tgz helm-repo/
+          # Generate the index file
+          helm repo index helm-repo --url https://securitybunker.github.io/databunkerpro-setup
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./helm-repo
+          publish_branch: gh-pages
+          commit_message: "Update Helm repository index"

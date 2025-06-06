@@ -4,13 +4,13 @@ This repository contains a Helm chart for deploying DatabunkerPro, a privacy vau
 
 ## Installation
 
-### Using Helm Chart from GitHub Packages
+### Using Helm Chart from GitHub Pages
 
-The official DatabunkerPro Helm chart is available through GitHub Packages. To install it:
+The official DatabunkerPro Helm chart is available through GitHub Pages. To install it:
 
 ```bash
-# Add the GitHub Packages Helm repository
-helm repo add databunkerpro oci://ghcr.io/securitybunker/helm-charts
+# Add the Helm repository
+helm repo add databunkerpro https://securitybunker.github.io/databunkerpro-setup
 
 # Update your local Helm repository cache
 helm repo update
