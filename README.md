@@ -1,6 +1,6 @@
 # DatabunkerPro Setup
 
-This repository contains a Helm chart for deploying DatabunkerPro, a privacy vault for personal data.
+This repository contains a Helm chart and Docker Compose projects for deploying DatabunkerPro — a privacy vault and tokenization service for personal data.
 
 ## Installation
 
