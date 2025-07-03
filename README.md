@@ -144,9 +144,4 @@ You can customize the deployment by modifying the values in your Helm installati
 
 ## Additional Resources
 
-* [DatabunkerPro Documentation](https://databunker.org/doc/)
-* [Helm Documentation](https://helm.sh/docs/)
-
-## About
-
-DatabunkerPro is a privacy vault for personal data that helps organizations comply with privacy regulations like GDPR, CCPA, and more.
+* [DatabunkerPro Documentation](https://databunker.org/databunker-pro-docs/api-and-sdk/)
