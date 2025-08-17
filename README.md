@@ -2,6 +2,24 @@
 
 This repository contains a Helm chart and Docker Compose projects for deploying DatabunkerPro — a privacy vault and tokenization service for personal data.
 
+## ⚠️ Important: Database Recommendations
+
+**For production environments, we strongly recommend using dedicated database servers instead of running databases in Kubernetes.** This includes:
+
+- **AWS RDS** (PostgreSQL/MySQL)
+- **Google Cloud SQL** (PostgreSQL/MySQL)
+- **Azure Database** (PostgreSQL/MySQL)
+- **Self-hosted database servers** with proper backup and monitoring
+
+### Why Use Dedicated Database Servers?
+
+- **Better Performance**: Dedicated resources and optimized configurations
+- **Enhanced Security**: Managed security patches and compliance features
+- **Reliability**: Built-in high availability, backup, and disaster recovery
+- **Scalability**: Easier to scale without affecting application workloads
+- **Maintenance**: Automated updates and maintenance windows
+- **Monitoring**: Advanced monitoring and alerting capabilities
+
 ## Installation
 
 ### Using Helm Chart from GitHub Pages
@@ -19,9 +37,57 @@ helm repo update
 helm install databunkerpro databunkerpro/databunkerpro
 ```
 
-#### Using Internal MySQL (Percona 8)
+### 🚀 Recommended: Using External Database
 
-To install DatabunkerPro with an internal Percona MySQL 8 database:
+#### Using AWS RDS PostgreSQL
+
+```bash
+helm install databunkerpro databunkerpro/databunkerpro \
+  --set database.external=true \
+  --set database.type=postgresql \
+  --set database.externalConfig.host=your-rds-postgresql-endpoint \
+  --set database.externalConfig.user=your-db-user \
+  --set database.externalConfig.password=your-db-password \
+  --set database.externalConfig.sslMode=require
+```
+
+#### Using AWS RDS MySQL
+
+```bash
+helm install databunkerpro databunkerpro/databunkerpro \
+  --set database.external=true \
+  --set database.type=mysql \
+  --set database.externalConfig.host=your-rds-mysql-endpoint \
+  --set database.externalConfig.user=your-db-user \
+  --set database.externalConfig.password=your-db-password
+```
+
+#### Using Google Cloud SQL
+
+```bash
+helm install databunkerpro databunkerpro/databunkerpro \
+  --set database.external=true \
+  --set database.type=postgresql \
+  --set database.externalConfig.host=your-cloudsql-instance-ip \
+  --set database.externalConfig.user=your-db-user \
+  --set database.externalConfig.password=your-db-password \
+  --set database.externalConfig.sslMode=require
+```
+
+### 🔧 Using Internal Databases
+
+> ⚠️ **Warning**: Internal databases is not recomended for production.
+
+#### Using Internal PostgreSQL
+
+```bash
+helm install databunkerpro databunkerpro/databunkerpro \
+  --set database.type=postgresql \
+  --set database.internal.postgresql.enabled=true \
+  --set database.internal.postgresql.ssl.enabled=true
+```
+
+#### Using Internal MySQL (Percona 8)
 
 ```bash
 helm install databunkerpro databunkerpro/databunkerpro \
@@ -29,41 +95,73 @@ helm install databunkerpro databunkerpro/databunkerpro \
   --set database.internal.mysql.enabled=true
 ```
 
-#### Using Internal PostgreSQL
+### 📋 Database Setup Requirements
 
-To install DatabunkerPro with an internal PostgreSQL database:
+#### For External Databases (Recommended)
 
-```bash
-helm install databunkerpro databunkerpro/databunkerpro \
-  --set database.type=postgresql \
-  --set database.internal.postgresql.enabled=true
-```
+1. **Create the database**:
+   ```sql
+   CREATE DATABASE databunkerdb;
+   ```
 
-#### Using Remote Database (RDS)
+2. **Create a dedicated user**:
+   ```sql
+   CREATE USER databunkeruser WITH PASSWORD 'your-secure-password';
+   GRANT ALL PRIVILEGES ON DATABASE databunkerdb TO databunkeruser;
+   ```
 
-To install DatabunkerPro with a remote database (e.g., AWS RDS):
+3. **Enable SSL/TLS** (recommended for production):
+   - AWS RDS: SSL is enabled by default
+   - Google Cloud SQL: Enable SSL connections
+   - Azure Database: Enable SSL enforcement
 
-##### For PostgreSQL:
-```bash
-helm install databunkerpro databunkerpro/databunkerpro \
-  --set database.external=true \
-  --set database.type=postgresql \
-  --set database.externalConfig.host=your-rds-host \
-  --set database.externalConfig.user=your-user \
-  --set database.externalConfig.password=your-password
-```
+4. **Configure network access**:
+   - Ensure your Kubernetes cluster can reach the database
+   - Configure security groups/firewall rules appropriately
+   - Use VPC peering or VPN for enhanced security
 
-##### For MySQL (Percona 8):
-```bash
-helm install databunkerpro databunkerpro/databunkerpro \
-  --set database.external=true \
-  --set database.type=mysql \
-  --set database.externalConfig.host=your-rds-host \
-  --set database.externalConfig.user=your-user \
-  --set database.externalConfig.password=your-password
-```
+#### For Internal Databases (Development Only)
 
-#### Exposing DatabunkerPro via Ingress
+The internal database will be automatically created with the required schema.
+
+### 🔐 SSL Certificate Management
+
+#### For Internal PostgreSQL with Custom SSL Certificates
+
+If you want to use your own SSL certificates instead of auto-generated ones:
+
+1. **Generate SSL certificates** (if you don't have them):
+   ```bash
+   # Or generate manually
+   openssl req -new -text -subj /CN=your-hostname \
+     -out server.req -keyout server.key
+   openssl req -x509 -in server.req -text \
+     -key server.key -out server.crt
+   ```
+
+2. **Create Kubernetes secret**:
+   ```bash
+   kubectl create secret generic postgresql-ssl-certs \
+     --from-file=server.crt=./server.crt \
+     --from-file=server.key=./server.key
+   ```
+
+3. **Install with custom certificates**:
+   ```bash
+   helm install databunkerpro databunkerpro/databunkerpro \
+     --set database.type=postgresql \
+     --set database.internal.postgresql.enabled=true \
+     --set database.internal.postgresql.ssl.enabled=true \
+     --set database.internal.postgresql.ssl.generateSelfSigned=false \
+     --set database.internal.postgresql.ssl.secretName=postgresql-ssl-certs
+   ```
+
+#### SSL Configuration Options
+
+- **`generateSelfSigned: true`** (default): Automatically generates self-signed certificates
+- **`generateSelfSigned: false`** + **`secretName`**: Uses certificates from Kubernetes secret
+
+### 🌐 Exposing DatabunkerPro via Ingress
 
 To expose DatabunkerPro via Ingress, set your custom host parameter:
 
@@ -142,6 +240,39 @@ The `generate-env-files.sh` script will:
 
 You can customize the deployment by modifying the values in your Helm installation command or by creating a custom values file.
 
+## ✅ Production Deployment Checklist
+
+Before deploying to production, ensure you have:
+
+### Database
+- [ ] Using a dedicated database server (RDS, Cloud SQL, etc.)
+- [ ] Database SSL/TLS enabled
+- [ ] Proper backup and disaster recovery configured
+- [ ] Database monitoring and alerting set up
+- [ ] Network security configured (VPC, security groups, etc.)
+
+### Security
+- [ ] SSL/TLS certificates configured for DatabunkerPro
+- [ ] Proper RBAC and service accounts configured
+- [ ] Secrets management in place (not hardcoded passwords)
+- [ ] Network policies configured
+- [ ] Regular security updates enabled
+
+### Monitoring & Operations
+- [ ] Logging and monitoring configured
+- [ ] Health checks and readiness probes working
+- [ ] Resource limits and requests configured
+- [ ] Horizontal Pod Autoscaler (HPA) configured if needed
+- [ ] Backup and restore procedures tested
+
+### Network
+- [ ] Ingress controller properly configured
+- [ ] SSL/TLS termination configured
+- [ ] Load balancer configured for high availability
+- [ ] DNS and domain configuration complete
+
 ## Additional Resources
 
 * [DatabunkerPro Documentation](https://databunker.org/databunker-pro-docs/api-and-sdk/)
+* [Kubernetes Production Best Practices](https://kubernetes.io/docs/concepts/security/)
+* [Database Security Best Practices](https://owasp.org/www-project-top-ten/)

@@ -31,9 +31,32 @@ spec:
         app.kubernetes.io/component: postgresql
     spec:
       initContainers:
-        - name: init-chown-data
-          image: busybox
-          command: ["sh", "-c", "mkdir -p /var/lib/postgresql/data/pgdata; chown -R 999:999 /var/lib/postgresql/data/pgdata"]
+        - name: init-postgresql
+          image: alpine:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Create PostgreSQL data directory and set ownership
+              mkdir -p /var/lib/postgresql/data/pgdata
+              chown -R 999:999 /var/lib/postgresql/data/pgdata
+              {{- if and .Values.database.internal.postgresql.ssl.enabled .Values.database.internal.postgresql.ssl.generateSelfSigned }}
+              # Install OpenSSL and generate SSL certificates
+              apk add --no-cache openssl
+              # Generate private key and certificate
+              openssl req -new -text -subj /CN=localhost \
+                -out /var/lib/postgresql/data/server.req \
+                -keyout /var/lib/postgresql/data/server.key
+              openssl req -x509 -in /var/lib/postgresql/data/server.req -text \
+                -key /var/lib/postgresql/data/server.key \
+                -out /var/lib/postgresql/data/server.crt
+              # Set proper permissions
+              chown 999:999 /var/lib/postgresql/data/server.*
+              chmod 600 /var/lib/postgresql/data/server.key
+              chmod 644 /var/lib/postgresql/data/server.crt
+              # Clean up temporary files
+              rm -f /var/lib/postgresql/data/server.req
+              {{- end }}
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
@@ -58,11 +81,35 @@ spec:
                   key: password
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
+            {{- if .Values.database.internal.postgresql.ssl.enabled }}
+            - name: POSTGRES_INITDB_ARGS
+              value: "--auth-host=scram-sha-256"
+            {{- end }}
+          {{- if .Values.database.internal.postgresql.ssl.enabled }}
+          command: ["postgres"]
+          args:
+            - "-c"
+            - "ssl=on"
+            - "-c"
+            - "ssl_cert_file=/var/lib/postgresql/data/server.crt"
+            - "-c"
+            - "ssl_key_file=/var/lib/postgresql/data/server.key"
+          {{- end }}
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
             - name: init-scripts
               mountPath: /docker-entrypoint-initdb.d
+            {{- if and .Values.database.internal.postgresql.ssl.enabled (not .Values.database.internal.postgresql.ssl.generateSelfSigned) .Values.database.internal.postgresql.ssl.secretName }}
+            - name: ssl-certs
+              mountPath: /var/lib/postgresql/data/server.crt
+              subPath: server.crt
+              readOnly: true
+            - name: ssl-certs
+              mountPath: /var/lib/postgresql/data/server.key
+              subPath: server.key
+              readOnly: true
+            {{- end }}
       volumes:
         - name: data
           {{- if .Values.database.internal.postgresql.persistence.enabled }}
@@ -74,6 +121,11 @@ spec:
         - name: init-scripts
           configMap:
             name: {{ include "databunkerpro.fullname" . }}-postgresql-init
+        {{- if and .Values.database.internal.postgresql.ssl.enabled (not .Values.database.internal.postgresql.ssl.generateSelfSigned) .Values.database.internal.postgresql.ssl.secretName }}
+        - name: ssl-certs
+          secret:
+            secretName: {{ .Values.database.internal.postgresql.ssl.secretName }}
+        {{- end }}
 ---
 apiVersion: v1
 kind: Service
