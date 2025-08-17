@@ -55,7 +55,7 @@ database:
   # Internal database configuration (used when external: false)
   internal:
     postgresql:
-      enabled: false
+      enabled: true
       image:
         repository: postgres
         tag: "14"

@@ -30,9 +30,15 @@ spec:
         {{- include "databunkerpro.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: postgresql
     spec:
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
       initContainers:
         - name: init-postgresql
           image: alpine:latest
+          securityContext:
+            runAsUser: 0
           command:
             - /bin/sh
             - -c
@@ -41,21 +47,17 @@ spec:
               mkdir -p /var/lib/postgresql/data/pgdata
               chown -R 999:999 /var/lib/postgresql/data/pgdata
               {{- if and .Values.database.internal.postgresql.ssl.enabled .Values.database.internal.postgresql.ssl.generateSelfSigned }}
-              # Install OpenSSL and generate SSL certificates
               apk add --no-cache openssl
-              # Generate private key and certificate
-              openssl req -new -text -subj /CN=localhost \
-                -out /var/lib/postgresql/data/server.req \
-                -keyout /var/lib/postgresql/data/server.key
-              openssl req -x509 -in /var/lib/postgresql/data/server.req -text \
-                -key /var/lib/postgresql/data/server.key \
-                -out /var/lib/postgresql/data/server.crt
-              # Set proper permissions
+              echo "generate a private key"
+              openssl genrsa -out /var/lib/postgresql/data/server.key 2048
+              echo "generate a self-signed certificate"
+              openssl req -new -x509 -key /var/lib/postgresql/data/server.key \
+                -out /var/lib/postgresql/data/server.crt -days 3650 \
+                -subj "/CN=localhost"
+              echo "set perms"
               chown 999:999 /var/lib/postgresql/data/server.*
               chmod 600 /var/lib/postgresql/data/server.key
               chmod 644 /var/lib/postgresql/data/server.crt
-              # Clean up temporary files
-              rm -f /var/lib/postgresql/data/server.req
               {{- end }}
           volumeMounts:
             - name: data
@@ -86,7 +88,7 @@ spec:
               value: "--auth-host=scram-sha-256"
             {{- end }}
           {{- if .Values.database.internal.postgresql.ssl.enabled }}
-          command: ["postgres"]
+          command: ["docker-entrypoint.sh"]
           args:
             - "-c"
             - "ssl=on"
@@ -160,4 +162,4 @@ spec:
     requests:
       storage: {{ .Values.database.internal.postgresql.persistence.size }}
 {{- end }}
-{{- end }} 
+{{- end }}
