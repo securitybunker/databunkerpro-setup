@@ -37,11 +37,13 @@ helm repo update
 helm install databunkerpro databunkerpro/databunkerpro
 ```
 
-After installing databunkerpro helm chart you need to publish the databunkerpro service to finish installation:
+After installing the DatabunkerPro Helm chart, you need to expose the DatabunkerPro service to complete the installation:
 
 ```bash
 kubectl port-forward service/databunkerpro 3000:3000
 ```
+
+Then, open ``http://localhost:3000`` in your browser to finish the setup process.
 
 ### 🚀 Recommended: Using External Database
 
