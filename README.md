@@ -37,6 +37,12 @@ helm repo update
 helm install databunkerpro databunkerpro/databunkerpro
 ```
 
+After installing databunkerpro helm chart you need to publish the databunkerpro service to finish installation:
+
+```bash
+kubectl port-forward service/databunkerpro 3000:3000
+```
+
 ### 🚀 Recommended: Using External Database
 
 #### Using AWS RDS PostgreSQL
