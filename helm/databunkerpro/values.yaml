@@ -8,7 +8,7 @@ image:
   pullPolicy: Always
 
 nameOverride: ""
-fullnameOverride: ""
+fullnameOverride: "databunkerpro"
 
 serviceAccount:
   create: false  # Disabled by default
