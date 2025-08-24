@@ -45,20 +45,5 @@ spec:
                 --key=/tmp/certs/{{ .Values.ssl.certificate.keyFile }} \
                 --dry-run=client -o yaml | kubectl apply -f -
               echo "SSL certificates generated and stored in secret: {{ include "databunkerpro.fullname" . }}-tls"
-          env:
-            - name: KUBECONFIG
-              value: "/var/run/secrets/kubernetes.io/serviceaccount/kubeconfig"
-          volumeMounts:
-            - name: kubeconfig
-              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
-              readOnly: true
-      volumes:
-        - name: kubeconfig
-          secret:
-            secretName: {{ include "databunkerpro.fullname" . }}-kubeconfig
-            defaultMode: 0600
-            items:
-              - key: kubeconfig
-                path: kubeconfig
-      serviceAccountName: {{ include "databunkerpro.serviceAccountName" . }}
+      serviceAccountName: {{ include "databunkerpro.fullname" . }}-sa-ssl-certs
 {{- end }}
