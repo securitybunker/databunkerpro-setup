@@ -52,7 +52,7 @@ spec:
               openssl genrsa -out /var/lib/postgresql/data/server.key 2048
               echo "generate a self-signed certificate"
               openssl req -new -x509 -key /var/lib/postgresql/data/server.key \
-                -out /var/lib/postgresql/data/server.crt -days 3650 \
+                -out /var/lib/postgresql/data/server.crt -days {{ .Values.database.internal.postgresql.ssl.duration }} \
                 -subj "/CN=localhost"
               echo "set perms"
               chown 999:999 /var/lib/postgresql/data/server.*

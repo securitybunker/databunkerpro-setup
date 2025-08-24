@@ -118,13 +118,14 @@ database:
       # SSL configuration
       ssl:
         enabled: true
+        duration: 3650 # ssl certificate duration in days
         mode: "require"
         # For production, you should provide your own certificates
         # For development/testing, PostgreSQL will generate self-signed certificates
         generateSelfSigned: true
         # External certificate configuration (when generateSelfSigned: false)
         secretName: ""  # Name of the secret containing server.crt and server.key
-    
+
     mysql:
       enabled: false
       image:
