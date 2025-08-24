@@ -35,7 +35,7 @@ spec:
         runAsGroup: 999
         fsGroup: 999
       initContainers:
-        - name: init-postgresql
+        - name: init
           image: alpine:latest
           securityContext:
             runAsUser: 0
