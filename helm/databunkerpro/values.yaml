@@ -70,7 +70,6 @@ ssl:
     # Certificate file paths in the secret
     certFile: "tls.crt"
     keyFile: "tls.key"
-    caFile: "ca.crt"  # Optional CA certificate
     
     # Self-signed certificate generation (when secretName is not provided)
   generateSelfSigned:

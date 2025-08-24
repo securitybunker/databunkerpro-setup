@@ -46,10 +46,6 @@ spec:
               value: "/databunker/certs/{{ .Values.ssl.certificate.certFile }}"
             - name: DATABUNKER_SSL_KEY_FILE
               value: "/databunker/certs/{{ .Values.ssl.certificate.keyFile }}"
-            {{- if .Values.ssl.certificate.caFile }}
-            - name: DATABUNKER_SSL_CA_FILE
-              value: "/databunker/certs/{{ .Values.ssl.certificate.caFile }}"
-            {{- end }}
             {{- end }}
             {{- if eq .Values.database.type "postgresql" }}
             - name: PGSQL_USER_PASS_FILE
@@ -146,10 +142,6 @@ spec:
                 path: {{ .Values.ssl.certificate.certFile }}
               - key: {{ .Values.ssl.certificate.keyFile }}
                 path: {{ .Values.ssl.certificate.keyFile }}
-              {{- if .Values.ssl.certificate.caFile }}
-              - key: {{ .Values.ssl.certificate.caFile }}
-                path: {{ .Values.ssl.certificate.caFile }}
-              {{- end }}
           {{- else if .Values.ssl.generateSelfSigned.enabled }}
           secret:
             secretName: {{ include "databunkerpro.fullname" . }}-tls

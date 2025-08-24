@@ -220,7 +220,6 @@ ssl:
     secretName: "databunkerpro-tls"
     certFile: "tls.crt"
     keyFile: "tls.key"
-    caFile: "ca.crt"  # Optional
 
   generateSelfSigned:
     enabled: false  # Set to true to generate self-signed certificates
