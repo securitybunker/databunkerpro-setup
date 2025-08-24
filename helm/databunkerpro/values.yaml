@@ -70,6 +70,19 @@ ssl:
     certFile: "tls.crt"
     keyFile: "tls.key"
     caFile: "ca.crt"  # Optional CA certificate
+    
+    # Self-signed certificate generation (when secretName is not provided)
+    generateSelfSigned:
+      enabled: false  # Set to true to generate self-signed certificates
+      duration: 365  # Certificate validity in days
+      commonName: "databunkerpro.local"  # Common name for the certificate
+      organization: "DataBunkerPro"  # Organization name
+      country: "US"  # Country code
+      state: "CA"  # State/Province
+      locality: "San Francisco"  # City/Locality
+      keySize: 2048  # RSA key size in bits
+      algorithm: "sha256"  # Hash algorithm
+  
   # Service configuration for SSL
   service:
     # Redirect HTTP to HTTPS

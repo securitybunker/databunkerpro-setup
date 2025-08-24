@@ -29,6 +29,48 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if and .Values.ssl.enabled (not .Values.ssl.certificate.secretName) .Values.ssl.certificate.generateSelfSigned.enabled }}
+      initContainers:
+        - name: init-ssl
+          image: alpine:3.22
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Install OpenSSL
+              apk add --no-cache openssl
+              # Create certificates directory
+              mkdir -p /databunker/certs
+              # Generate private key
+              openssl genrsa -out /databunker/certs/{{ .Values.ssl.certificate.keyFile }} {{ .Values.ssl.certificate.generateSelfSigned.keySize }}
+              # Generate certificate signing request
+              openssl req -new -key /databunker/certs/{{ .Values.ssl.certificate.keyFile }} \
+                -out /tmp/cert.csr \
+                -subj "/C={{ .Values.ssl.certificate.generateSelfSigned.country }}/ST={{ .Values.ssl.certificate.generateSelfSigned.state }}/L={{ .Values.ssl.certificate.generateSelfSigned.locality }}/O={{ .Values.ssl.certificate.generateSelfSigned.organization }}/CN={{ .Values.ssl.certificate.generateSelfSigned.commonName }}"
+              # Generate self-signed certificate
+              openssl x509 -req -in /tmp/cert.csr \
+                -signkey /databunker/certs/{{ .Values.ssl.certificate.keyFile }} \
+                -out /databunker/certs/{{ .Values.ssl.certificate.certFile }} \
+                -days {{ .Values.ssl.certificate.generateSelfSigned.duration }} \
+                -sha256
+              # Set proper permissions
+              chmod 600 /databunker/certs/{{ .Values.ssl.certificate.keyFile }}
+              chmod 644 /databunker/certs/{{ .Values.ssl.certificate.certFile }}
+              echo "Self-signed SSL certificates generated successfully"
+              echo "Certificate: /databunker/certs/{{ .Values.ssl.certificate.certFile }}"
+              echo "Private Key: /databunker/certs/{{ .Values.ssl.certificate.keyFile }}"
+              echo "Valid for {{ .Values.ssl.certificate.generateSelfSigned.duration }} days"
+          volumeMounts:
+            - name: ssl-certs
+              mountPath: /databunker/certs
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -119,6 +161,7 @@ spec:
                 path: wrapping-key
         {{- if .Values.ssl.enabled }}
         - name: ssl-certs
+          {{- if .Values.ssl.certificate.secretName }}
           secret:
             secretName: {{ .Values.ssl.certificate.secretName | default (printf "%s-tls" (include "databunkerpro.fullname" .)) }}
             items:
@@ -130,6 +173,11 @@ spec:
               - key: {{ .Values.ssl.certificate.caFile }}
                 path: {{ .Values.ssl.certificate.caFile }}
               {{- end }}
+          {{- else if .Values.ssl.certificate.generateSelfSigned.enabled }}
+          emptyDir:
+            medium: Memory
+            sizeLimit: "1Mi"
+          {{- end }}
         {{- end }}
         {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") (.Values.database.internal.mysql.enabled) }}
         - name: mysql-password
