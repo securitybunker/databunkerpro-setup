@@ -10,7 +10,11 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.config.databunker.port }}
       protocol: TCP
+      {{- if .Values.ssl.enabled }}
+      name: https
+      {{ else }}
       name: http
+      {{- end }}
   selector:
     app.kubernetes.io/name: {{ include "databunkerpro.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

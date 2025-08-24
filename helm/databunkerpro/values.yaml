@@ -25,13 +25,55 @@ service:
   port: 3000
 
 ingress:
+  enabled: false  # Set to true to enable ingress
   className: nginx
   # Set host to enable ingress
   # host: chart-example.local
   annotations:
     kubernetes.io/ingress.class: nginx
-  # tls:
-  #   secretName: databunker-tls
+    # For cert-manager automatic certificate generation
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # or your cluster issuer
+    # Alternative: use cert-manager.io/issuer for namespace-scoped issuer
+    # cert-manager.io/issuer: "letsencrypt-prod"
+    # SSL/TLS specific annotations
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+      add_header X-Frame-Options DENY always;
+      add_header X-Content-Type-Options nosniff always;
+      add_header X-XSS-Protection "1; mode=block" always;
+  # TLS configuration
+  tls:
+    enabled: false  # Set to true to enable TLS
+    secretName: ""  # Name of the secret containing TLS certificate
+    # Alternative: Let cert-manager create the secret automatically
+    # secretName: "{{ .Release.Name }}-tls"
+    # For multiple hosts
+    # - hosts:
+    #     - host1.example.com
+    #     - host2.example.com
+    #   secretName: host1-host2-tls
+
+# SSL Configuration for application-level SSL termination
+ssl:
+  enabled: false  # Set to true to enable application-level SSL
+  # Certificate configuration
+  certificate:
+    # Use existing secret
+    secretName: ""  # Name of existing TLS secret
+    # Or let cert-manager create one
+    # secretName: "{{ .Release.Name }}-tls"
+    # Certificate file paths in the secret
+    certFile: "tls.crt"
+    keyFile: "tls.key"
+    caFile: "ca.crt"  # Optional CA certificate
+  # Service configuration for SSL
+  service:
+    # Redirect HTTP to HTTPS
+    redirectHttp: true
 
 resources: {}
 

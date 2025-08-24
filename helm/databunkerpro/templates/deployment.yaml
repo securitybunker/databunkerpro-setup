@@ -41,6 +41,16 @@ spec:
           env:
             - name: DATABUNKER_WRAPPINGKEY_FILE
               value: "/var/run/secrets/kubernetes.io/serviceaccount/wrapping-key/wrapping-key"
+            {{- if .Values.ssl.enabled }}
+            - name: DATABUNKER_SSL_CERT_FILE
+              value: "/databunker/certs/{{ .Values.ssl.certificate.certFile }}"
+            - name: DATABUNKER_SSL_KEY_FILE
+              value: "/databunker/certs/{{ .Values.ssl.certificate.keyFile }}"
+            {{- if .Values.ssl.certificate.caFile }}
+            - name: DATABUNKER_SSL_CA_FILE
+              value: "/databunker/certs/{{ .Values.ssl.certificate.caFile }}"
+            {{- end }}
+            {{- end }}
             {{- if eq .Values.database.type "postgresql" }}
             - name: PGSQL_USER_PASS_FILE
               value: "/var/run/secrets/kubernetes.io/serviceaccount/postgres-password/postgres-password"
@@ -76,6 +86,11 @@ spec:
             - name: wrapping-key
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount/wrapping-key
               readOnly: true
+            {{- if .Values.ssl.enabled }}
+            - name: ssl-certs
+              mountPath: /databunker/certs
+              readOnly: true
+            {{- end }}
             {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") (.Values.database.internal.mysql.enabled) }}
             - name: mysql-password
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount/mysql-password
@@ -102,6 +117,20 @@ spec:
             items:
               - key: wrapping-key
                 path: wrapping-key
+        {{- if .Values.ssl.enabled }}
+        - name: ssl-certs
+          secret:
+            secretName: {{ .Values.ssl.certificate.secretName | default (printf "%s-tls" (include "databunkerpro.fullname" .)) }}
+            items:
+              - key: {{ .Values.ssl.certificate.certFile }}
+                path: {{ .Values.ssl.certificate.certFile }}
+              - key: {{ .Values.ssl.certificate.keyFile }}
+                path: {{ .Values.ssl.certificate.keyFile }}
+              {{- if .Values.ssl.certificate.caFile }}
+              - key: {{ .Values.ssl.certificate.caFile }}
+                path: {{ .Values.ssl.certificate.caFile }}
+              {{- end }}
+        {{- end }}
         {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") (.Values.database.internal.mysql.enabled) }}
         - name: mysql-password
           secret:
