@@ -190,7 +190,7 @@ Purchase certificates from providers like:
 - Comodo
 - Your hosting provider
 
-### Step 2: Create TLS secret
+### Step 2: Save SSL Certificate as Kubernetes Secret
 
 ```bash
 # Create a secret with your certificates
