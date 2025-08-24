@@ -109,9 +109,27 @@ spec:
                   key: password
             {{- end }}
           ports:
+            {{- if .Values.ssl.enabled }}
+            - name: https
+              containerPort: {{ .Values.config.databunker.port }}
+              protocol: TCP
+            {{- else }}
             - name: http
               containerPort: {{ .Values.config.databunker.port }}
               protocol: TCP
+            {{- end }}
+          {{- if .Values.ssl.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: https
+              scheme: HTTPS
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: https
+              scheme: HTTPS
+          {{- else }}
           livenessProbe:
             httpGet:
               path: /health
@@ -120,6 +138,7 @@ spec:
             httpGet:
               path: /health
               port: http
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
