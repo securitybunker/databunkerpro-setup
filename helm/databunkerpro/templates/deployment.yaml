@@ -121,22 +121,22 @@ spec:
           {{- if .Values.ssl.enabled }}
           livenessProbe:
             httpGet:
-              path: /health
+              path: /status
               port: https
               scheme: HTTPS
           readinessProbe:
             httpGet:
-              path: /health
+              path: /status
               port: https
               scheme: HTTPS
           {{- else }}
           livenessProbe:
             httpGet:
-              path: /health
+              path: /status
               port: http
           readinessProbe:
             httpGet:
-              path: /health
+              path: /status
               port: http
           {{- end }}
           resources:
