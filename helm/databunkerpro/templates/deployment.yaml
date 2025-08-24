@@ -56,6 +56,7 @@ spec:
               # Set proper permissions
               chmod 600 /databunker/certs/{{ .Values.ssl.certificate.keyFile }}
               chmod 644 /databunker/certs/{{ .Values.ssl.certificate.certFile }}
+              chown -R 1000:1000 /databunker/certs
               echo "Self-signed SSL certificates generated successfully"
               echo "Certificate: /databunker/certs/{{ .Values.ssl.certificate.certFile }}"
               echo "Private Key: /databunker/certs/{{ .Values.ssl.certificate.keyFile }}"
