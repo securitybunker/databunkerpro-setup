@@ -60,7 +60,7 @@ ingress:
 
 # SSL Configuration for application-level SSL termination
 ssl:
-  enabled: true  # Set to true to enable application-level SSL
+  enabled: false  # Set to true to enable application-level SSL
   # Certificate configuration
   certificate:
     # Use existing secret
@@ -74,7 +74,7 @@ ssl:
     
     # Self-signed certificate generation (when secretName is not provided)
     generateSelfSigned:
-      enabled: true  # Set to true to generate self-signed certificates
+      enabled: false  # Set to true to generate self-signed certificates
       duration: 365  # Certificate validity in days
       commonName: "databunkerpro.local"  # Common name for the certificate
       organization: "DataBunkerPro"  # Organization name
