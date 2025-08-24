@@ -29,10 +29,10 @@ data:
       max_audit_retention_period: "6m"
       max_session_retention_period: "1h"
       max_shareable_record_retention_period: "1m"
-    ssl:
-      # ssl configuration
-      ssl_certificate: "/databunker/certs/server.cer"
-      ssl_certificate_key: "/databunker/certs/server.key"
+    #ssl:
+    #  # ssl configuration
+    #  ssl_certificate: "/databunker/certs/server.cer"
+    #  ssl_certificate_key: "/databunker/certs/server.key"
     sms:
       # REQUIRED: Specify SMS gateway URL.
       # Available modifiers for url parameters: {token}, {from}, {phone}, {msg}

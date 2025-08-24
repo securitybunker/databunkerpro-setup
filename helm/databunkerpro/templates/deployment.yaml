@@ -41,6 +41,12 @@ spec:
           env:
             - name: DATABUNKER_WRAPPINGKEY_FILE
               value: "/var/run/secrets/kubernetes.io/serviceaccount/wrapping-key/wrapping-key"
+            {{- if .Values.ssl.enabled }}
+            - name: DATABUNKER_SSL_CERT_FILE
+              value: "/databunker/certs/{{ .Values.ssl.certificate.certFile }}"
+            - name: DATABUNKER_SSL_KEY_FILE
+              value: "/databunker/certs/{{ .Values.ssl.certificate.keyFile }}"
+            {{- end }}
             {{- if eq .Values.database.type "postgresql" }}
             - name: PGSQL_USER_PASS_FILE
               value: "/var/run/secrets/kubernetes.io/serviceaccount/postgres-password/postgres-password"
@@ -56,17 +62,36 @@ spec:
                   key: password
             {{- end }}
           ports:
+            {{- if .Values.ssl.enabled }}
+            - name: https
+              containerPort: {{ .Values.config.databunker.port }}
+              protocol: TCP
+            {{- else }}
             - name: http
               containerPort: {{ .Values.config.databunker.port }}
               protocol: TCP
+            {{- end }}
+          {{- if .Values.ssl.enabled }}
           livenessProbe:
             httpGet:
-              path: /health
+              path: /status
+              port: https
+              scheme: HTTPS
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: https
+              scheme: HTTPS
+          {{- else }}
+          livenessProbe:
+            httpGet:
+              path: /status
               port: http
           readinessProbe:
             httpGet:
-              path: /health
+              path: /status
               port: http
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -76,6 +101,11 @@ spec:
             - name: wrapping-key
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount/wrapping-key
               readOnly: true
+            {{- if .Values.ssl.enabled }}
+            - name: ssl-certs
+              mountPath: /databunker/certs
+              readOnly: true
+            {{- end }}
             {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") (.Values.database.internal.mysql.enabled) }}
             - name: mysql-password
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount/mysql-password
@@ -102,6 +132,26 @@ spec:
             items:
               - key: wrapping-key
                 path: wrapping-key
+        {{- if .Values.ssl.enabled }}
+        - name: ssl-certs
+          {{- if .Values.ssl.certificate.secretName }}
+          secret:
+            secretName: {{ .Values.ssl.certificate.secretName | default (printf "%s-tls" (include "databunkerpro.fullname" .)) }}
+            items:
+              - key: {{ .Values.ssl.certificate.certFile }}
+                path: {{ .Values.ssl.certificate.certFile }}
+              - key: {{ .Values.ssl.certificate.keyFile }}
+                path: {{ .Values.ssl.certificate.keyFile }}
+          {{- else if .Values.ssl.generateSelfSigned.enabled }}
+          secret:
+            secretName: {{ include "databunkerpro.fullname" . }}-tls
+            items:
+              - key: {{ .Values.ssl.certificate.certFile }}
+                path: {{ .Values.ssl.certificate.certFile }}
+              - key: {{ .Values.ssl.certificate.keyFile }}
+                path: {{ .Values.ssl.certificate.keyFile }}
+          {{- end }}
+        {{- end }}
         {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") (.Values.database.internal.mysql.enabled) }}
         - name: mysql-password
           secret:
