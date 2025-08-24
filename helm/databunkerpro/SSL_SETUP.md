@@ -119,17 +119,7 @@ ingress:
     kubernetes.io/ingress.class: nginx
     # cert-manager configuration
     cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Use letsencrypt-staging for testing
-    # SSL/TLS configuration
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
-    # Security headers
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-      add_header X-Frame-Options DENY always;
-      add_header X-Content-Type-Options nosniff always;
-      add_header X-XSS-Protection "1; mode=block" always;
-  
+
   tls:
     enabled: true
     # Let cert-manager create the secret automatically
