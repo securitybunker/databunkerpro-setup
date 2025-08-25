@@ -2,12 +2,6 @@
 
 This guide provides step-by-step instructions for setting up SSL certificates for DataBunkerPro using the Helm chart, including automatic self-signed certificate generation and ingress-level SSL with cert-manager.
 
-## Prerequisites
-
-1. **Kubernetes cluster** with admin access
-2. **Domain name** pointing to your cluster's ingress IP (for production)
-3. **Ingress controller** (nginx-ingress recommended)
-4. **cert-manager** installed (for automatic certificate generation with Let's Encrypt)
 
 ## SSL Configuration Options
 
@@ -24,14 +18,15 @@ SSL termination at the DataBunkerPro application level using existing certificat
 SSL termination at the DataBunkerPro application level with automatic self-signed certificate generation.
 
 
-### Step 4: Configure DNS
+## Option 1: Ingress-Level SSL with cert-manager (Recommended for Production)
+
+### Step 1: Configure DNS
 
 Point your domain to the ingress controller's external IP:
 
 ```bash
 # Get the external IP
 EXTERNAL_IP=$(kubectl get service -n ingress-nginx nginx-ingress-ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-
 echo "Point your domain to: $EXTERNAL_IP"
 ```
 
@@ -40,9 +35,7 @@ Add an A record in your DNS:
 - **Value**: `<EXTERNAL_IP>`
 - **TTL**: 300 seconds
 
-### Step 5: Configure and deploy DataBunkerPro
-
-Configure ingress with cert-manager:
+### Step 2: Configure and deploy DataBunkerPro
 
 ```yaml
 ingress:
@@ -62,9 +55,11 @@ helm install databunkerpro ./databunkerpro -f values.yaml
 
 ### Step 1: Obtain SSL Certificates
 
-You have several options to obtain SSL certificates:
+You need to obtain SSL certificates for your domain. Common options include:
 
-#### Option A: Using Certbot (Recommended for Let's Encrypt)
+- **Let's Encrypt** (free) - Use certbot or your hosting provider's Let's Encrypt integration
+- **Certificate Authorities** - Purchase from providers like DigiCert, GlobalSign, Comodo
+- **Your hosting provider** - Many providers offer free SSL certificates
 
 ```bash
 # Install certbot
@@ -78,14 +73,6 @@ sudo certbot certonly --standalone -d databunker.yourdomain.com
 # /etc/letsencrypt/live/databunker.yourdomain.com/fullchain.pem
 # /etc/letsencrypt/live/databunker.yourdomain.com/privkey.pem
 ```
-
-#### Option B: Purchase from Certificate Authority
-
-Purchase certificates from providers like:
-- DigiCert
-- GlobalSign
-- Comodo
-- Your hosting provider
 
 ### Step 2: Save SSL Certificate as Kubernetes Secret
 
@@ -106,7 +93,7 @@ ssl:
     secretName: "databunkerpro-tls"
 
   generateSelfSigned:
-    enabled: false  # Set to true to generate self-signed certificates
+    enabled: false
 ```
 
 ```bash
