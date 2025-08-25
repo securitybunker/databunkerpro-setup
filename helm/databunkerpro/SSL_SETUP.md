@@ -23,62 +23,6 @@ SSL termination at the DataBunkerPro application level using existing certificat
 
 SSL termination at the DataBunkerPro application level with automatic self-signed certificate generation.
 
-## Option 1: Ingress-Level SSL with cert-manager (Recommended)
-
-### Step 1: Install Ingress Controller
-
-```bash
-# Add the nginx-ingress Helm repository
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-
-# Install nginx-ingress
-helm install nginx-ingress ingress-nginx/ingress-nginx \
-  --namespace ingress-nginx \
-  --create-namespace \
-  --set controller.service.type=LoadBalancer
-
-# Get the external IP
-kubectl get service -n ingress-nginx nginx-ingress-ingress-nginx-controller
-```
-
-### Step 2: Install cert-manager
-
-```bash
-# Install cert-manager
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
-
-# Wait for cert-manager to be ready
-kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=cert-manager -n cert-manager --timeout=300s
-```
-
-### Step 3: Create ClusterIssuer for Let's Encrypt
-
-```yaml
-# Create letsencrypt-prod.yaml
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt-prod
-spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: your-email@example.com  # Replace with your email
-    privateKeySecretRef:
-      name: letsencrypt-prod
-    solvers:
-    - http01:
-        ingress:
-          class: nginx
-```
-
-```bash
-# Apply the ClusterIssuer
-kubectl apply -f letsencrypt-prod.yaml
-
-# Verify it's ready
-kubectl get clusterissuer letsencrypt-prod
-```
 
 ### Step 4: Configure DNS
 
@@ -98,67 +42,20 @@ Add an A record in your DNS:
 
 ### Step 5: Configure and deploy DataBunkerPro
 
-You can use the official ```values.yaml``` file from repository or create smaller one. Helm knows to merge the changes.
-
-```bash
-# Download the base values file
-curl -O https://raw.githubusercontent.com/securitybunker/databunkerpro-setup/main/helm/databunkerpro/values.yaml
-```
-
-Enable ingress with cert-manager:
+Configure ingress with cert-manager:
 
 ```yaml
-# Modify these sections in values.yaml:
-
 ingress:
   enabled: true
-  className: nginx
-  host: "databunker.yourdomain.com"  # Replace with your domain
-  
+  host: "databunker.yourdomain.com"
   annotations:
-    kubernetes.io/ingress.class: nginx
-    # cert-manager configuration
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Use letsencrypt-staging for testing
-
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
   tls:
     enabled: true
-    # Let cert-manager create the secret automatically
-    secretName: "databunkerpro-tls"
-
 ```
 
 ```bash
-# Deploy DataBunkerPro
-helm install databunkerpro ./databunkerpro \
-  --namespace databunkerpro \
-  --create-namespace \
-  -f values.yaml
-```
-
-### Step 6: Monitor Certificate Generation
-
-```bash
-# Check certificate status
-kubectl get certificate -n databunkerpro
-
-# Check certificate details
-kubectl describe certificate databunkerpro-tls -n databunkerpro
-
-# Check ingress status
-kubectl get ingress -n databunkerpro
-
-# Monitor cert-manager logs
-kubectl logs -n cert-manager deployment/cert-manager -f
-```
-
-### Step 7: Verify SSL Certificate
-
-```bash
-# Test HTTPS access
-curl -I https://databunker.yourdomain.com
-
-# Check certificate details
-openssl s_client -connect databunker.yourdomain.com:443 -servername databunker.yourdomain.com < /dev/null | openssl x509 -text -noout
+helm install databunkerpro ./databunkerpro -f values.yaml
 ```
 
 ## Option 2: Application-Level SSL with External Certificates
@@ -202,24 +99,11 @@ kubectl create secret tls databunkerpro-tls \
 
 ### Step 3: Configure and deploy
 
-First, get the base values file from the official repository:
-
-```bash
-# Download the base values file
-curl -O https://raw.githubusercontent.com/securitybunker/databunkerpro-setup/main/helm/databunkerpro/values.yaml
-```
-
-Then modify the `values.yaml` file to enable application-level SSL:
-
 ```yaml
-# Modify these sections in values.yaml:
-
 ssl:
   enabled: true
   certificate:
     secretName: "databunkerpro-tls"
-    certFile: "tls.crt"
-    keyFile: "tls.key"
 
   generateSelfSigned:
     enabled: false  # Set to true to generate self-signed certificates
@@ -235,35 +119,13 @@ This option automatically generates self-signed certificates using a Kubernetes 
 
 ### Step 1: Configure self-signed certificate generation
 
-First, get the base values file from the official repository:
-
-```bash
-# Download the base values file
-curl -O https://raw.githubusercontent.com/securitybunker/databunkerpro-setup/main/helm/databunkerpro/values.yaml
-```
-
-Then modify the `values.yaml` file to enable self-signed certificate generation:
-
 ```yaml
-# Modify these sections in values.yaml:
-
 ssl:
   enabled: true
   certificate:
-    # Leave secretName empty to trigger self-signed generation
-    secretName: ""
-    
-    # Self-signed certificate configuration
-    generateSelfSigned:
-      enabled: true
-      duration: 365  # Certificate validity in days
-      commonName: "databunkerpro.local"  # Common name for the certificate
-      organization: "DataBunkerPro"  # Organization name
-      country: "US"  # Country code
-      state: "CA"  # State/Province
-      locality: "San Francisco"  # City/Locality
-      keySize: 2048  # RSA key size in bits
-      algorithm: "sha256"  # Hash algorithm
+    secretName: ""  # Leave empty to trigger self-signed generation
+  generateSelfSigned:
+    enabled: true
 ```
 
 ### Step 2: Deploy with self-signed certificates
@@ -278,16 +140,4 @@ helm install databunkerpro ./databunkerpro -f values.yaml
 2. **Helm Hooks**: The Job uses Helm hooks (`pre-install`, `pre-upgrade`) to ensure it runs before the main application
 3. **Certificate Generation**: The Job generates a private key and self-signed certificate using OpenSSL
 4. **Secret Creation**: Certificates are stored in a Kubernetes Secret named `{release-name}-tls`
-5. **Application Startup**: DataBunkerPro deployment mounts the secret and starts with the generated certificates
-
-### Self-Signed Certificate Configuration Options
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `enabled` | `false` | Enable self-signed certificate generation |
-| `duration` | `365` | Certificate validity in days |
-| `commonName` | `databunkerpro.local` | Common name (CN) for the certificate |
-| `organization` | `DataBunkerPro` | Organization name (O) |
-| `country` | `US` | Country code (C) |
-| `state` | `CA` | State/Province (ST) |
-| `locality`
+5. **Application Startup**: DataBunkerPro deployment mounts the secret and uses the generated certificates
