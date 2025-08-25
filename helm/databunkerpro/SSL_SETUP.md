@@ -98,14 +98,14 @@ Add an A record in your DNS:
 
 ### Step 5: Configure and deploy DataBunkerPro
 
-First, get the base values file from the official repository:
+You can use the official ```values.yaml``` file from repository or create smaller one. Helm knows to merge the changes.
 
 ```bash
 # Download the base values file
 curl -O https://raw.githubusercontent.com/securitybunker/databunkerpro-setup/main/helm/databunkerpro/values.yaml
 ```
 
-Then modify the `values.yaml` file to enable ingress with cert-manager:
+Enable ingress with cert-manager:
 
 ```yaml
 # Modify these sections in values.yaml:
