@@ -37,7 +37,7 @@ helm repo update
 helm install databunkerpro databunkerpro/databunkerpro
 ```
 
-After installing the DatabunkerPro Helm chart, you need to expose the DatabunkerPro service to complete the installation:
+After installing the databunkerpro Helm chart, you need to expose the Databunker Pro service to complete the installation:
 
 ```bash
 kubectl port-forward service/databunkerpro 3000:3000
@@ -216,7 +216,12 @@ cd docker-compose-mysql
 ./generate-env-files.sh
 ```
 
-3. Start the services:
+3. Pull the latest images:
+```bash
+docker compose pull
+```
+
+4. Start the services:
 ```bash
 docker compose up -d
 ```
@@ -233,10 +238,17 @@ cd docker-compose-pgsql
 ./generate-env-files.sh
 ```
 
-3. Start the services:
+3. Pull the latest images:
+```bash
+docker compose pull
+```
+
+4. Start the services:
 ```bash
 docker compose up -d
 ```
+
+#### How it works
 
 The `generate-env-files.sh` script will:
 * Create necessary directories
