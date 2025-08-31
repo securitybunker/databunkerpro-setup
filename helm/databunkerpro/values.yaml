@@ -102,15 +102,16 @@ database:
   externalConfig:
     host: ""
     port: 5432
-    name: databunkerdb
-    user: ""
+    name: "databunkerdb"
+    user: "bunkeruser"
     password: ""
-    sslMode: require
+    sslMode: "require" # ssl mode for postgresql: require, verify-ca, verify-full, disable
   
   # Internal database configuration (used when external: false)
   internal:
     postgresql:
       enabled: true
+      sslMode: "require" # ssl mode for postgresql: require, verify-ca, verify-full, disable
       image:
         repository: postgres
         tag: "14"

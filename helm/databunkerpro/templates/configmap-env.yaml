@@ -24,7 +24,7 @@ data:
   PGSQL_PORT: "5432"
   PGSQL_DATABASE: {{ .Values.database.internal.postgresql.auth.database | quote }}
   PGSQL_USER_NAME: {{ .Values.database.internal.postgresql.auth.username | quote }}
-  PGSQL_SSL_MODE: {{ .Values.database.internal.postgresql.ssl.mode | quote }}
+  PGSQL_SSL_MODE: {{ .Values.database.internal.postgresql.sslMode | quote }}
   {{- else if eq .Values.database.type "mysql" }}
   MYSQL_HOST: "{{ include "databunkerpro.fullname" . }}-mysql"
   MYSQL_PORT: "3306"
