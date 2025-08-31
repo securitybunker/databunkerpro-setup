@@ -36,4 +36,4 @@ data:
   REDIS_PORT: "6379"
   {{- if .Values.redis.auth.password }}
   REDIS_PASSWORD: {{ .Values.redis.auth.password | quote }}
-  {{- end }} 
+  {{- end }}
