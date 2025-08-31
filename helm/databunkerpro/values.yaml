@@ -105,13 +105,16 @@ database:
     name: "databunkerdb"
     user: "bunkeruser"
     password: ""
-    sslMode: "require" # ssl mode for postgresql: require, verify-ca, verify-full, disable
+    # ssl mode for external postgresql database: require, verify-ca, verify-full, disable
+    # ssl mode for external mysql database: true, false, skip-verify, preferred
+    sslMode: "require"
   
   # Internal database configuration (used when external: false)
   internal:
     postgresql:
       enabled: true
-      sslMode: "require" # ssl mode for postgresql: require, verify-ca, verify-full, disable
+      # ssl mode for postgresql: require, verify-ca, verify-full, disable
+      sslMode: "require"
       image:
         repository: postgres
         tag: "14"
@@ -142,6 +145,8 @@ database:
 
     mysql:
       enabled: false
+      # ssl mode for mysql: true, false, skip-verify, preferred
+      sslMode: "skip-verify"
       image:
         repository: percona
         tag: "8"
