@@ -19,6 +19,10 @@ policy:
   max_audit_retention_period: "6m"
   max_session_retention_period: "1h"
   max_shareable_record_retention_period: "1m"
+versioning:
+  enabled: false
+  max_versions: 10
+  max_version_retention_period: "1m"
 ssl:
   # ssl configuration
   ssl_certificate: "/databunker/certs/server.cer"
