@@ -17,6 +17,7 @@ data:
   MYSQL_PORT: {{ .Values.database.externalConfig.port | quote }}
   MYSQL_DATABASE: {{ .Values.database.externalConfig.name | quote }}
   MYSQL_USER_NAME: {{ .Values.database.externalConfig.user | quote }}
+  MYSQL_SSL_MODE: {{ .Values.database.externalConfig.sslMode | quote }}
   {{- end }}
   {{- else }}
   {{- if eq .Values.database.type "postgresql" }}
@@ -30,6 +31,7 @@ data:
   MYSQL_PORT: "3306"
   MYSQL_DATABASE: {{ .Values.database.internal.mysql.auth.database | quote }}
   MYSQL_USER_NAME: {{ .Values.database.internal.mysql.auth.username | quote }}
+  MYSQL_SSL_MODE: {{ .Values.database.internal.mysql.sslMode | quote }}
   {{- end }}
   {{- end }}
   REDIS_HOST: "{{ include "databunkerpro.fullname" . }}-redis"

@@ -12,7 +12,25 @@ services:
     restart: unless-stopped
     volumes:
       - ./data:/var/lib/mysql
-    #command: --max_connections=2048 --innodb_buffer_pool_size=12G --innodb_buffer_pool_instances=8 --innodb_flush_log_at_trx_commit=2 --innodb_flush_method=O_DIRECT --innodb_file_per_table=ON --innodb_log_buffer_size=128M --table_open_cache=4096 --tmp_table_size=256M --max_heap_table_size=256M --tmp_table_size=64M --max_heap_table_size=64M --join_buffer_size=64M --sort_buffer_size=64M --read_rnd_buffer_size=16M
+      - ./.env/my-server.crt:/etc/mysql/ssl/server.crt:ro
+      - ./.env/my-server.key:/etc/mysql/ssl/server.key:ro
+    command: >
+      --max_connections=2048
+      --innodb_file_per_table=ON
+      --ssl-cert=/etc/mysql/ssl/server.crt
+      --ssl-key=/etc/mysql/ssl/server.key
+      --require-secure-transport=ON
+    # --innodb_buffer_pool_size=12G
+    # --innodb_buffer_pool_instances=8
+    # --innodb_flush_log_at_trx_commit=2
+    # --innodb_flush_method=O_DIRECT
+    # --innodb_log_buffer_size=128M
+    # --table_open_cache=4096
+    # --tmp_table_size=256M
+    # --max_heap_table_size=256M
+    # --join_buffer_size=64M
+    # --sort_buffer_size=64M
+    # --read_rnd_buffer_size=16M
   redis:
     image: redis
     restart: unless-stopped
