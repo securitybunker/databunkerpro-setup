@@ -106,12 +106,12 @@ spec:
               mountPath: /databunker/certs
               readOnly: true
             {{- end }}
-            {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") (.Values.database.internal.mysql.enabled) }}
+            {{- if eq .Values.database.type "mysql" }}
             - name: mysql-password
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount/mysql-password
               readOnly: true
             {{- end }}
-            {{- if and (not .Values.database.external) (eq .Values.database.type "postgresql") }}
+            {{- if eq .Values.database.type "postgresql" }}
             - name: postgres-password
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount/postgres-password
               readOnly: true
@@ -152,7 +152,7 @@ spec:
                 path: {{ .Values.ssl.certificate.keyFile }}
           {{- end }}
         {{- end }}
-        {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") (.Values.database.internal.mysql.enabled) }}
+        {{- if eq .Values.database.type "mysql" }}
         - name: mysql-password
           secret:
             secretName: {{ include "databunkerpro.fullname" . }}-db
@@ -160,7 +160,7 @@ spec:
               - key: password
                 path: mysql-password
         {{- end }}
-        {{- if and (not .Values.database.external) (eq .Values.database.type "postgresql") }}
+        {{- if eq .Values.database.type "postgresql" }}
         - name: postgres-password
           secret:
             secretName: {{ include "databunkerpro.fullname" . }}-db

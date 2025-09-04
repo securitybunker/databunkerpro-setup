@@ -114,8 +114,8 @@ helm install databunkerpro databunkerpro/databunkerpro \
 
 2. **Create a dedicated user**:
    ```sql
-   CREATE USER databunkeruser WITH PASSWORD 'your-secure-password';
-   GRANT ALL PRIVILEGES ON DATABASE databunkerdb TO databunkeruser;
+   CREATE USER bunkeruser WITH PASSWORD 'your-secure-password';
+   GRANT ALL PRIVILEGES ON DATABASE databunkerdb TO bunkeruser;
    ```
 
 3. **Enable SSL/TLS** (recommended for production):
