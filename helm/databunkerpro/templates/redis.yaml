@@ -1,4 +1,4 @@
-{{- if .Values.redis.enabled }}
+{{- if and .Values.redis.enabled (not .Values.redis.external) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,12 +20,11 @@ spec:
     spec:
       containers:
         - name: redis
-          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          image: "{{ .Values.redis.internal.image.repository }}:{{ .Values.redis.internal.image.tag }}"
           ports:
             - name: redis
               containerPort: 6379
               protocol: TCP
-          {{- if .Values.redis.auth.password }}
           command:
             - redis-server
             - --requirepass
@@ -36,15 +35,14 @@ spec:
                 secretKeyRef:
                   name: {{ include "databunkerpro.fullname" . }}-redis
                   key: password
-          {{- end }}
           volumeMounts:
             - name: data
               mountPath: /data
           resources:
-            {{- toYaml .Values.redis.resources | nindent 12 }}
+            {{- toYaml .Values.redis.internal.resources | nindent 12 }}
       volumes:
         - name: data
-          {{- if .Values.redis.persistence.enabled }}
+          {{- if .Values.redis.internal.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ include "databunkerpro.fullname" . }}-redis
           {{- else }}
@@ -68,7 +66,7 @@ spec:
   selector:
     {{- include "databunkerpro.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: redis
-{{- if .Values.redis.persistence.enabled }}
+{{- if .Values.redis.internal.persistence.enabled }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -82,6 +80,6 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.redis.persistence.size }}
+      storage: {{ .Values.redis.internal.persistence.size }}
 {{- end }}
 {{- end }} 

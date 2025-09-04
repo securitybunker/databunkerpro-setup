@@ -49,17 +49,14 @@ spec:
             {{- end }}
             {{- if eq .Values.database.type "postgresql" }}
             - name: PGSQL_USER_PASS_FILE
-              value: "/var/run/secrets/kubernetes.io/serviceaccount/postgres-password/postgres-password"
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/postgres-password/password"
             {{- else if eq .Values.database.type "mysql" }}
             - name: MYSQL_USER_PASS_FILE
-              value: "/var/run/secrets/kubernetes.io/serviceaccount/mysql-password/mysql-password"
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/mysql-password/password"
             {{- end }}
-            {{- if .Values.redis.auth.password }}
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "databunkerpro.fullname" . }}-redis
-                  key: password
+            {{- if .Values.redis.enabled }}
+            - name: REDIS_PASSWORD_FILE
+              value: "/var/run/secrets/kubernetes.io/serviceaccount/redis-password/password"
             {{- end }}
           ports:
             {{- if .Values.ssl.enabled }}
@@ -116,6 +113,11 @@ spec:
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount/postgres-password
               readOnly: true
             {{- end }}
+            {{- if .Values.redis.enabled }}
+            - name: redis-password
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount/redis-password
+              readOnly: true
+            {{- end }}
           command: ["/databunker/bin/databunkerpro"]
           args:
             - "-db"
@@ -158,7 +160,7 @@ spec:
             secretName: {{ include "databunkerpro.fullname" . }}-db
             items:
               - key: password
-                path: mysql-password
+                path: password
         {{- end }}
         {{- if eq .Values.database.type "postgresql" }}
         - name: postgres-password
@@ -166,5 +168,13 @@ spec:
             secretName: {{ include "databunkerpro.fullname" . }}-db
             items:
               - key: password
-                path: postgres-password
+                path: password
+        {{- end }}
+        {{- if .Values.redis.enabled }}
+        - name: redis-password
+          secret:
+            secretName: {{ include "databunkerpro.fullname" . }}-redis
+            items:
+              - key: password
+                path: password
         {{- end }} 

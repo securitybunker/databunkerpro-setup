@@ -34,8 +34,12 @@ data:
   MYSQL_SSL_MODE: {{ .Values.database.internal.mysql.sslMode | quote }}
   {{- end }}
   {{- end }}
+  {{- if .Values.redis.enabled }}
+  {{- if .Values.redis.external }}
+  REDIS_HOST: {{ .Values.redis.externalConfig.host | quote }}
+  REDIS_PORT: {{ .Values.redis.externalConfig.port | quote }}
+  {{- else }}
   REDIS_HOST: "{{ include "databunkerpro.fullname" . }}-redis"
   REDIS_PORT: "6379"
-  {{- if .Values.redis.auth.password }}
-  REDIS_PASSWORD: {{ .Values.redis.auth.password | quote }}
+  {{- end }}
   {{- end }}

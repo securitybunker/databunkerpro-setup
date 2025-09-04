@@ -70,7 +70,7 @@ ssl:
     # Certificate file paths in the secret
     certFile: "tls.crt"
     keyFile: "tls.key"
-    
+
     # Self-signed certificate generation (when secretName is not provided)
   generateSelfSigned:
     enabled: false  # Set to true to generate self-signed certificates
@@ -82,7 +82,7 @@ ssl:
     locality: "San Francisco"  # City/Locality
     keySize: 2048  # RSA key size in bits
     algorithm: "sha256"  # Hash algorithm
-  
+
   # Service configuration for SSL
   service:
     # Redirect HTTP to HTTPS
@@ -94,21 +94,22 @@ resources: {}
 database:
   # Set to true to use external database (RDS, etc.)
   external: false
-  
+
   # Database type (postgresql or mysql)
   type: postgresql
-  
+
   # External database configuration
   externalConfig:
     host: ""
     port: 5432
     name: "databunkerdb"
     user: "bunkeruser"
+    # make sure to set password
     password: ""
     # ssl mode for external postgresql database: require, verify-ca, verify-full, disable
     # ssl mode for external mysql database: true, false, skip-verify, preferred
     sslMode: "require"
-  
+
   # Internal database configuration (used when external: false)
   internal:
     postgresql:
@@ -178,22 +179,34 @@ database:
 
 # Redis configuration
 redis:
-  enabled: true
-  image:
-    repository: redis
-    tag: "7"
-  persistence:
-    enabled: false
-    size: 8Gi
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "1Gi"
-      cpu: "200m"
-  auth:
-    password: ""  # Will be auto-generated if not set
+  enabled: true  # Set to false to disable Redis completely
+  # Set to true to use external Redis
+  external: false
+
+  # External Redis configuration
+  externalConfig:
+    host: ""
+    port: 6379
+    # make sure to set password
+    password: ""
+
+  # Internal Redis configuration (used when external: false)
+  internal:
+    image:
+      repository: redis
+      tag: "7"
+    persistence:
+      enabled: false
+      size: 8Gi
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "1Gi"
+        cpu: "200m"
+    auth:
+      password: ""  # Will be auto-generated if not set
 
 # DatabunkerPro configuration
 config:
