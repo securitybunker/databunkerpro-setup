@@ -16,6 +16,9 @@ services:
   redis:
     image: redis
     restart: unless-stopped
+    env_file:
+      - .env/redis.env
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_USER_PASS"
     ports:
       - "127.0.0.1:6379:6379"
   databunkerpro:

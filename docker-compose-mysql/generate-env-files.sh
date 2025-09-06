@@ -15,6 +15,11 @@ echo 'MYSQL_DATABASE=databunkerdb' > .env/mysql.env
 echo 'MYSQL_USER=bunkeruser' >> .env/mysql.env
 echo 'MYSQL_PASSWORD='$MYSQLUSER >> .env/mysql.env
 
+echo 'generating .env/redis.env'
+REDIS_USER_PASS=`< /dev/urandom LC_CTYPE=C tr -dc '_\*^A-Z-a-z-0-9' | head -c${1:-32};`
+echo 'REDIS_USER_PASS='$REDIS_USER_PASS > .env/redis.env
+echo 'REDIS_USER_NAME=default' >> .env/redis.env
+
 echo 'generating .env/databunker.env'
 KEY=`< /dev/urandom LC_CTYPE=C tr -dc 'a-f0-9' | head -c${1:-48};`
 echo 'DATABUNKER_WRAPPINGKEY='$KEY > .env/databunker.env
@@ -24,6 +29,9 @@ echo 'MYSQL_SSL_MODE=skip-verify' >> .env/databunker.env
 echo 'MYSQL_HOST=mysql' >> .env/databunker.env
 echo 'MYSQL_PORT=3306' >> .env/databunker.env
 echo 'REDIS_HOST=redis' >> .env/databunker.env
+echo 'REDIS_PORT=6379' >> .env/databunker.env
+echo 'REDIS_USER_PASS='$REDIS_USER_PASS >> .env/databunker.env
+echo 'REDIS_USER_NAME=default' >> .env/databunker.env
 
 echo 'generating ssl certificate for mysql server with SANs'
 rm -rf .env/my-*

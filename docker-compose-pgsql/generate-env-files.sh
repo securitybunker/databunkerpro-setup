@@ -15,6 +15,11 @@ echo 'PGSQL_DATABASE=databunkerdb' > .env/postgresql.env
 echo 'PGSQL_USER=bunkeruser' >> .env/postgresql.env
 echo 'PGSQL_PASSWORD='$PGSQL_USER_PASSWORD >> .env/postgresql.env
 
+echo 'generating .env/redis.env'
+REDIS_USER_PASS=`< /dev/urandom LC_CTYPE=C tr -dc '_\*^A-Z-a-z-0-9' | head -c${1:-32};`
+echo 'REDIS_USER_PASS='$REDIS_USER_PASS > .env/redis.env
+echo 'REDIS_USER_NAME=default' >> .env/redis.env
+
 echo 'generating .env/databunker.env'
 KEY=`< /dev/urandom LC_CTYPE=C tr -dc 'a-f0-9' | head -c${1:-48};`
 echo 'DATABUNKER_WRAPPINGKEY='$KEY > .env/databunker.env
@@ -23,6 +28,9 @@ echo 'PGSQL_USER_PASS='$PGSQL_USER_PASSWORD >> .env/databunker.env
 echo 'PGSQL_HOST=postgresql' >> .env/databunker.env
 echo 'PGSQL_PORT=5432' >> .env/databunker.env
 echo 'REDIS_HOST=redis' >> .env/databunker.env
+echo 'REDIS_PORT=6379' >> .env/databunker.env
+echo 'REDIS_USER_PASS='$REDIS_USER_PASS >> .env/databunker.env
+echo 'REDIS_USER_NAME=default' >> .env/databunker.env
 
 echo 'generating ssl sertificate for postgres server'
 rm -rf .env/pg-*
