@@ -3,9 +3,9 @@ entries:
   databunkerpro:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-09-06T20:25:57.546333507Z"
+    created: "2025-09-06T21:26:03.184621718Z"
     description: A Helm chart for DatabunkerPro - Privacy Vault for Personal Data
-    digest: 749db10f7d0b4ff98a51b6af0085d46385f59861185dd42c5d6fcbb40ed2aa8a
+    digest: 4062b205a2b863e537add8b596f663c7549892db3aeb1087287ad79264869932
     keywords:
     - privacy
     - security
@@ -19,4 +19,4 @@ entries:
     urls:
     - https://securitybunker.github.io/databunkerpro-setup/databunkerpro-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-06T20:25:57.544541271Z"
+generated: "2025-09-06T21:26:03.183643192Z"
