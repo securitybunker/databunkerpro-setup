@@ -55,7 +55,7 @@ spec:
               value: "/var/run/secrets/kubernetes.io/serviceaccount/mysql-password/password"
             {{- end }}
             {{- if .Values.redis.enabled }}
-            - name: REDIS_PASS_FILE
+            - name: REDIS_USER_PASS_FILE
               value: "/var/run/secrets/kubernetes.io/serviceaccount/redis-password/password"
             {{- end }}
           ports:

@@ -36,9 +36,11 @@ data:
   {{- end }}
   {{- if .Values.redis.enabled }}
   {{- if .Values.redis.external }}
+  REDIS_USER_NAME: {{ .Values.redis.externalConfig.username | quote }}
   REDIS_HOST: {{ .Values.redis.externalConfig.host | quote }}
   REDIS_PORT: {{ .Values.redis.externalConfig.port | quote }}
   {{- else }}
+  REDIS_USER_NAME: {{ .Values.redis.internal.auth.username | quote }}
   REDIS_HOST: "{{ include "databunkerpro.fullname" . }}-redis"
   REDIS_PORT: "6379"
   {{- end }}

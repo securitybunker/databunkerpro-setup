@@ -25,12 +25,9 @@ spec:
             - name: redis
               containerPort: 6379
               protocol: TCP
-          command:
-            - redis-server
-            - --requirepass
-            - $(REDIS_PASSWORD)
+          command: /bin/sh -c "redis-server --requirepass $$REDIS_USER_PASS"
           env:
-            - name: REDIS_PASSWORD
+            - name: REDIS_USER_PASS
               valueFrom:
                 secretKeyRef:
                   name: {{ include "databunkerpro.fullname" . }}-redis

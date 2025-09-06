@@ -189,6 +189,7 @@ redis:
     port: 6379
     # make sure to set password
     password: ""
+    username: "default"
 
   # Internal Redis configuration (used when external: false)
   internal:
@@ -207,6 +208,7 @@ redis:
         cpu: "200m"
     auth:
       password: ""  # Will be auto-generated if not set
+      username: "default"
 
 # DatabunkerPro configuration
 config:
