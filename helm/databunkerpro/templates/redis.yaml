@@ -25,7 +25,11 @@ spec:
             - name: redis
               containerPort: 6379
               protocol: TCP
-          command: /bin/sh -c "redis-server --requirepass $$REDIS_USER_PASS"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              redis-server --requirepass $$REDIS_USER_PASS
           env:
             - name: REDIS_USER_PASS
               valueFrom:
@@ -79,4 +83,4 @@ spec:
     requests:
       storage: {{ .Values.redis.internal.persistence.size }}
 {{- end }}
-{{- end }} 
+{{- end }}
