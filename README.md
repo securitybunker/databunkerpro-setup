@@ -115,10 +115,11 @@ helm install databunkerpro databunkerpro/databunkerpro \
    CREATE DATABASE databunkerdb OWNER bunkeruser;
    ```
 
-2. **When the last command fails**:
+2. **When working with neondb**:
    ```sql
-   CREATE DATABASE databunkerdb;
-   GRANT ALL PRIVILEGES ON DATABASE databunkerdb TO bunkeruser;
+   CREATE ROLE mtenant NOSUPERUSER NOLOGIN;
+   GRANT mtenant TO neondb_owner;
+   CREATE DATABASE databunkerdb OWNER neondb_owner;   
    ```
 
 3. **Enable SSL/TLS** (recommended for production):
