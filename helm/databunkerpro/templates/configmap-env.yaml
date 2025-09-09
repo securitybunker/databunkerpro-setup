@@ -9,13 +9,13 @@ data:
   {{- if eq .Values.database.type "postgresql" }}
   PGSQL_HOST: {{ .Values.database.externalConfig.host | quote }}
   PGSQL_PORT: {{ .Values.database.externalConfig.port | quote }}
-  PGSQL_DATABASE: {{ .Values.database.externalConfig.name | quote }}
+  PGSQL_DATABASE: {{ .Values.database.externalConfig.database | quote }}
   PGSQL_USER_NAME: {{ .Values.database.externalConfig.user | quote }}
   PGSQL_SSL_MODE: {{ .Values.database.externalConfig.sslMode | quote }}
   {{- else if eq .Values.database.type "mysql" }}
   MYSQL_HOST: {{ .Values.database.externalConfig.host | quote }}
   MYSQL_PORT: {{ .Values.database.externalConfig.port | quote }}
-  MYSQL_DATABASE: {{ .Values.database.externalConfig.name | quote }}
+  MYSQL_DATABASE: {{ .Values.database.externalConfig.database | quote }}
   MYSQL_USER_NAME: {{ .Values.database.externalConfig.user | quote }}
   MYSQL_SSL_MODE: {{ .Values.database.externalConfig.sslMode | quote }}
   {{- end }}
