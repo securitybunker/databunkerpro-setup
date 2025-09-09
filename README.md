@@ -107,7 +107,7 @@ helm install databunkerpro databunkerpro/databunkerpro \
 
 #### For External Databases (Recommended)
 
-1. **Create the database user and database**:
+1. **Create the postgresql user and database**:
    ```sql
    CREATE ROLE bunkeruser NOSUPERUSER LOGIN PASSWORD 'your-secure-password';
    CREATE ROLE mtenant NOSUPERUSER NOLOGIN;
@@ -119,7 +119,6 @@ helm install databunkerpro databunkerpro/databunkerpro \
    ```sql
    CREATE ROLE mtenant NOSUPERUSER NOLOGIN;
    GRANT mtenant TO neondb_owner;
-   CREATE DATABASE databunkerdb OWNER neondb_owner;   
    ```
 
 3. **Enable SSL/TLS** (recommended for production):
