@@ -102,7 +102,7 @@ database:
   externalConfig:
     host: ""
     port: 5432
-    name: "databunkerdb"
+    database: "databunkerdb"
     user: "bunkeruser"
     # make sure to set password
     password: ""
