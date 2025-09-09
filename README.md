@@ -107,14 +107,17 @@ helm install databunkerpro databunkerpro/databunkerpro \
 
 #### For External Databases (Recommended)
 
-1. **Create the database**:
+1. **Create the database user and database**:
    ```sql
-   CREATE DATABASE databunkerdb;
+   CREATE ROLE bunkeruser NOSUPERUSER LOGIN PASSWORD 'your-secure-password';
+   CREATE ROLE mtenant NOSUPERUSER NOLOGIN;
+   GRANT mtenant TO bunkeruser;
+   CREATE DATABASE databunkerdb OWNER bunkeruser;
    ```
 
-2. **Create a dedicated user**:
+2. **When the last command fails**:
    ```sql
-   CREATE USER bunkeruser WITH PASSWORD 'your-secure-password';
+   CREATE DATABASE databunkerdb;
    GRANT ALL PRIVILEGES ON DATABASE databunkerdb TO bunkeruser;
    ```
 
