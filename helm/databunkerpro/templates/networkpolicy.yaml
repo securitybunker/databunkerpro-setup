@@ -1,0 +1,235 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "databunkerpro.fullname" . }}-network-policy
+  labels:
+    {{- include "databunkerpro.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "databunkerpro.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: databunkerpro
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    # Allow ingress from ingress controller
+    {{- if .Values.ingress.enabled }}
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: {{ .Values.networkPolicy.ingressNamespace | default "ingress-nginx" }}
+      ports:
+      - protocol: TCP
+        port: {{ .Values.config.databunker.port }}
+    {{- end }}
+    # Allow ingress from other pods in the same namespace (for internal communication)
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: {{ .Release.Namespace }}
+      ports:
+      - protocol: TCP
+        port: {{ .Values.config.databunker.port }}
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+      - protocol: UDP
+        port: 53
+      - protocol: TCP
+        port: 53
+    # Allow HTTPS for external API calls
+    - to: []
+      ports:
+      - protocol: TCP
+        port: 443
+    # Allow HTTP for external API calls (if needed)
+    - to: []
+      ports:
+      - protocol: TCP
+        port: 80
+    # Allow SMTP for email notifications
+    - to: []
+      ports:
+      - protocol: TCP
+        port: 587
+      - protocol: TCP
+        port: 465
+      - protocol: TCP
+        port: 25
+    # Allow PostgreSQL connection (internal)
+    {{- if and (not .Values.database.external) (eq .Values.database.type "postgresql") }}
+    - to:
+      - podSelector:
+          matchLabels:
+            {{- include "databunkerpro.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: postgresql
+      ports:
+      - protocol: TCP
+        port: 5432
+    {{- end }}
+    # Allow MySQL connection (internal)
+    {{- if and (not .Values.database.external) (eq .Values.database.type "mysql") }}
+    - to:
+      - podSelector:
+          matchLabels:
+            {{- include "databunkerpro.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: mysql
+      ports:
+      - protocol: TCP
+        port: 3306
+    {{- end }}
+    # Allow Redis connection (internal)
+    {{- if and .Values.redis.enabled (not .Values.redis.external) }}
+    - to:
+      - podSelector:
+          matchLabels:
+            {{- include "databunkerpro.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: redis
+      ports:
+      - protocol: TCP
+        port: 6379
+    {{- end }}
+    # Allow external database connections (if configured)
+    {{- if .Values.database.external }}
+    - to: []
+      ports:
+      - protocol: TCP
+        port: {{ .Values.database.externalConfig.port | default (ternary 5432 (ternary 3306 5432 (eq .Values.database.type "mysql"))) }}
+    {{- end }}
+    # Allow external Redis connections (if configured)
+    {{- if and .Values.redis.enabled .Values.redis.external }}
+    - to: []
+      ports:
+      - protocol: TCP
+        port: {{ .Values.redis.externalConfig.port | default 6379 }}
+    {{- end }}
+---
+# Network policy for PostgreSQL (if running internally)
+{{- if and (not .Values.database.external) (eq .Values.database.type "postgresql") }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "databunkerpro.fullname" . }}-postgresql-network-policy
+  labels:
+    {{- include "databunkerpro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "databunkerpro.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: postgresql
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    # Allow connections from DataBunker pods
+    - from:
+      - podSelector:
+          matchLabels:
+            {{- include "databunkerpro.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: databunkerpro
+      ports:
+      - protocol: TCP
+        port: 5432
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+      - protocol: UDP
+        port: 53
+      - protocol: TCP
+        port: 53
+    # Allow PostgreSQL to make external connections if needed
+    - to: []
+      ports:
+      - protocol: TCP
+        port: 443
+{{- end }}
+---
+# Network policy for MySQL (if running internally)
+{{- if and (not .Values.database.external) (eq .Values.database.type "mysql") }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "databunkerpro.fullname" . }}-mysql-network-policy
+  labels:
+    {{- include "databunkerpro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mysql
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "databunkerpro.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: mysql
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    # Allow connections from DataBunker pods
+    - from:
+      - podSelector:
+          matchLabels:
+            {{- include "databunkerpro.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: databunkerpro
+      ports:
+      - protocol: TCP
+        port: 3306
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+      - protocol: UDP
+        port: 53
+      - protocol: TCP
+        port: 53
+    # Allow MySQL to make external connections if needed
+    - to: []
+      ports:
+      - protocol: TCP
+        port: 443
+{{- end }}
+---
+# Network policy for Redis (if running internally)
+{{- if and .Values.redis.enabled (not .Values.redis.external) }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "databunkerpro.fullname" . }}-redis-network-policy
+  labels:
+    {{- include "databunkerpro.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "databunkerpro.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: redis
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    # Allow connections from DataBunker pods
+    - from:
+      - podSelector:
+          matchLabels:
+            {{- include "databunkerpro.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: databunkerpro
+      ports:
+      - protocol: TCP
+        port: 6379
+  egress:
+    # Allow DNS resolution
+    - to: []
+      ports:
+      - protocol: UDP
+        port: 53
+      - protocol: TCP
+        port: 53
+    # Allow Redis to make external connections if needed
+    - to: []
+      ports:
+      - protocol: TCP
+        port: 443
+{{- end }}
+{{- end }}

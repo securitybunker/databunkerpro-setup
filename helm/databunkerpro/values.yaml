@@ -210,6 +210,12 @@ redis:
       password: ""  # Will be auto-generated if not set
       username: "default"
 
+# Network Policy configuration
+networkPolicy:
+  enabled: false  # Set to true to enable network policies
+  # Namespace where ingress controller is running (for ingress rules)
+  ingressNamespace: "ingress-nginx"  # Change this to match your ingress controller namespace
+
 # DatabunkerPro configuration
 config:
   # Wrapping key for encryption
