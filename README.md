@@ -295,6 +295,16 @@ Before deploying to production, ensure you have:
 - [ ] Load balancer configured for high availability
 - [ ] DNS and domain configuration complete
 
+## Troubleshooting
+```
+kubectl run postgres-test --rm -i --restart=Never --image=postgres:14 -n namespace -- bash
+psql -h databunkerpro-postgresql -U bunkeruser -d databunkerdb
+
+kubectl exec -ti pod -n namespace -- sh
+/bin/busybox env
+/bin/busybox cat /file-location
+```
+
 ## Additional Resources
 
 * [DatabunkerPro Documentation](https://databunker.org/databunker-pro-docs/api-and-sdk/)
