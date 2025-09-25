@@ -303,6 +303,7 @@ psql -h databunkerpro-postgresql -U bunkeruser -d databunkerdb
 kubectl exec -ti pod -n namespace -- sh
 /bin/busybox env
 /bin/busybox cat /file-location
+/bin/busybox cat /var/run/secrets/kubernetes.io/serviceaccount/wrapping-key/wrapping-key
 ```
 
 ## Additional Resources
