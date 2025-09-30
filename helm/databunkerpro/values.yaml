@@ -88,7 +88,14 @@ ssl:
     # Redirect HTTP to HTTPS
     redirectHttp: true
 
-resources: {}
+resources:
+  # Uncomment and adjust these values based on your requirements
+  # requests:
+  #   memory: "512Mi"
+  #   cpu: "250m"
+  # limits:
+  #   memory: "1Gi"
+  #   cpu: "500m"
 
 # Database configuration
 database:
