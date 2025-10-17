@@ -300,10 +300,24 @@ Before deploying to production, ensure you have:
 kubectl run postgres-test --rm -i --restart=Never --image=postgres:14 -n namespace -- bash
 psql -h databunkerpro-postgresql -U bunkeruser -d databunkerdb
 
-kubectl exec -ti pod -n namespace -- sh
+kubectl exec -ti databunkerpro_pod_name -n namespace -- sh
 /bin/busybox env
 /bin/busybox cat /file-location
 /bin/busybox cat /var/run/secrets/kubernetes.io/serviceaccount/wrapping-key/wrapping-key
+```
+
+Reset user related tables:
+```
+TRUNCATE TABLE users RESTART IDENTITY;
+TRUNCATE TABLE userversions RESTART IDENTITY;
+TRUNCATE TABLE userapps RESTART IDENTITY;
+TRUNCATE TABLE userappversions RESTART IDENTITY;
+TRUNCATE TABLE sharedrecords RESTART IDENTITY;
+TRUNCATE TABLE audit RESTART IDENTITY;
+TRUNCATE TABLE requests RESTART IDENTITY;
+TRUNCATE TABLE agreements RESTART IDENTITY;
+TRUNCATE TABLE sessions RESTART IDENTITY;
+TRUNCATE TABLE usergroups RESTART IDENTITY;
 ```
 
 ## Additional Resources
