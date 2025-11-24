@@ -53,12 +53,12 @@ spec:
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "databunkerpro.fullname" . }}-db
+                  name: {{ include "databunkerpro.dbSecretName" . }}
                   key: password
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "databunkerpro.fullname" . }}-db
+                  name: {{ include "databunkerpro.dbSecretName" . }}
                   key: root-password
           volumeMounts:
             - name: mysql-data

@@ -157,7 +157,7 @@ spec:
         {{- if eq .Values.database.type "mysql" }}
         - name: mysql-password
           secret:
-            secretName: {{ include "databunkerpro.fullname" . }}-db
+            secretName: {{ include "databunkerpro.dbSecretName" . }}
             items:
               - key: password
                 path: password
@@ -165,7 +165,7 @@ spec:
         {{- if eq .Values.database.type "postgresql" }}
         - name: postgres-password
           secret:
-            secretName: {{ include "databunkerpro.fullname" . }}-db
+            secretName: {{ include "databunkerpro.dbSecretName" . }}
             items:
               - key: password
                 path: password

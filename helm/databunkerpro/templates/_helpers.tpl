@@ -59,4 +59,15 @@ Create the name of the service account to use
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
+{{- end }}
+
+{{/*
+Create the name of the database secret to use
+*/}}
+{{- define "databunkerpro.dbSecretName" -}}
+{{- if .Values.database.existingSecret.name }}
+{{- .Values.database.existingSecret.name }}
+{{- else }}
+{{- include "databunkerpro.fullname" . }}-db
+{{- end }}
 {{- end }} 

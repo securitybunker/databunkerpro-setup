@@ -105,6 +105,15 @@ database:
   # Database type (postgresql or mysql)
   type: postgresql
 
+  # Use existing secret for database passwords (alternative to auto-generated passwords)
+  existingSecret:
+    # Name of the existing secret containing database passwords
+    # If provided, the chart will use this secret instead of generating one
+    # Leave empty to auto-generate passwords (default behavior)
+    # For MySQL: must contain keys 'password' and 'root-password'
+    # For PostgreSQL: must contain key 'password'
+    name: ""
+
   # External database configuration
   externalConfig:
     host: ""

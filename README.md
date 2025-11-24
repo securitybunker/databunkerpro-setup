@@ -103,6 +103,68 @@ helm install databunkerpro databunkerpro/databunkerpro \
   --set database.internal.mysql.enabled=true
 ```
 
+#### Using Existing Secrets for Database Passwords
+
+Instead of auto-generating database passwords, you can generate your own password and store it as a Kubernetes secret. The `helm install` command can be configured to use this secret.
+
+##### For PostgreSQL
+
+1. **Create the secret with kubectl**:
+   ```bash
+   kubectl create secret generic my-postgresql-secret \
+     --from-literal=password='your-secure-postgresql-password' \
+     --namespace=your-namespace
+   ```
+
+2. **Install DatabunkerPro with the existing secret**:
+   ```bash
+   helm install databunkerpro databunkerpro/databunkerpro \
+     --set database.type=postgresql \
+     --set database.internal.postgresql.enabled=true \
+     --set database.existingSecret.name=my-postgresql-secret \
+     --namespace=your-namespace
+   ```
+
+##### For MySQL
+
+1. **Create the secret with kubectl** (MySQL requires both `password` and `root-password`):
+   ```bash
+   kubectl create secret generic my-mysql-secret \
+     --from-literal=password='your-secure-mysql-password' \
+     --from-literal=root-password='your-secure-mysql-root-password' \
+     --namespace=your-namespace
+   ```
+
+2. **Install DatabunkerPro with the existing secret**:
+   ```bash
+   helm install databunkerpro databunkerpro/databunkerpro \
+     --set database.type=mysql \
+     --set database.internal.mysql.enabled=true \
+     --set database.existingSecret.name=my-mysql-secret \
+     --namespace=your-namespace
+   ```
+
+##### Using a Values File
+
+Alternatively, you can configure this in your values file:
+
+```yaml
+database:
+  type: postgresql
+  existingSecret:
+    name: my-postgresql-secret
+  internal:
+    postgresql:
+      enabled: true
+```
+
+Then install with:
+```bash
+helm install databunkerpro databunkerpro/databunkerpro -f my-values.yaml
+```
+
+**Note**: The secret must exist in the same namespace where you're deploying DatabunkerPro. If the secret name is not provided, the chart will automatically generate passwords as before.
+
 ### 📋 Database Setup Requirements
 
 #### For External Databases (Recommended)
