@@ -103,11 +103,11 @@ helm install databunkerpro databunkerpro/databunkerpro \
   --set database.internal.mysql.enabled=true
 ```
 
-#### Using Existing Secrets for Database Passwords
+### Using Existing Secrets for Database Passwords
 
-Instead of auto-generating database passwords, you can generate your own password and store it as a Kubernetes secret. The `helm install` command can be configured to use this secret.
+Instead of auto-generating database passwords, you can generate your own password and store it as Kubernetes secret. The ```helm install``` can be configured to use this secret.
 
-##### For PostgreSQL
+#### For PostgreSQL
 
 1. **Create the secret with kubectl**:
    ```bash
@@ -125,7 +125,7 @@ Instead of auto-generating database passwords, you can generate your own passwor
      --namespace=your-namespace
    ```
 
-##### For MySQL
+#### For MySQL
 
 1. **Create the secret with kubectl** (MySQL requires both `password` and `root-password`):
    ```bash
@@ -144,7 +144,7 @@ Instead of auto-generating database passwords, you can generate your own passwor
      --namespace=your-namespace
    ```
 
-##### Using a Values File
+#### Using a Values File
 
 Alternatively, you can configure this in your values file:
 
