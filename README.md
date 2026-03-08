@@ -1,6 +1,6 @@
-# DatabunkerPro Setup
+# Databunker Pro Setup
 
-This repository contains a Helm chart and Docker Compose projects for deploying DatabunkerPro — a privacy vault and tokenization service for personal data.
+This repository contains a Helm chart and Docker Compose projects for deploying Databunker Pro — a privacy vault and tokenization service for personal data.
 
 ## ⚠️ Important: Database Recommendations
 
@@ -24,7 +24,7 @@ This repository contains a Helm chart and Docker Compose projects for deploying 
 
 ### Using Helm Chart from GitHub Pages
 
-The official DatabunkerPro Helm chart is available through GitHub Pages. To install it:
+The official Databunker Pro Helm chart is available through GitHub Pages. To install it:
 
 ```bash
 # Add the Helm repository
@@ -33,7 +33,7 @@ helm repo add databunkerpro https://securitybunker.github.io/databunkerpro-setup
 # Update your local Helm repository cache
 helm repo update
 
-# Install DatabunkerPro
+# Install Databunker Pro
 helm install databunkerpro databunkerpro/databunkerpro
 ```
 
@@ -116,7 +116,7 @@ Instead of auto-generating database passwords, you can generate your own passwor
      --namespace=your-namespace
    ```
 
-2. **Install DatabunkerPro with the existing secret**:
+2. **Install Databunker Pro with the existing secret**:
    ```bash
    helm install databunkerpro databunkerpro/databunkerpro \
      --set database.type=postgresql \
@@ -135,7 +135,7 @@ Instead of auto-generating database passwords, you can generate your own passwor
      --namespace=your-namespace
    ```
 
-2. **Install DatabunkerPro with the existing secret**:
+2. **Install Databunker Pro with the existing secret**:
    ```bash
    helm install databunkerpro databunkerpro/databunkerpro \
      --set database.type=mysql \
@@ -163,7 +163,7 @@ Then install with:
 helm install databunkerpro databunkerpro/databunkerpro -f my-values.yaml
 ```
 
-**Note**: The secret must exist in the same namespace where you're deploying DatabunkerPro. If the secret name is not provided, the chart will automatically generate passwords as before.
+**Note**: The secret must exist in the same namespace where you're deploying Databunker Pro. If the secret name is not provided, the chart will automatically generate passwords as before.
 
 ### 📋 Database Setup Requirements
 
@@ -235,9 +235,9 @@ If you want to use your own SSL certificates instead of auto-generated ones:
 - **`generateSelfSigned: true`** (default): Automatically generates self-signed certificates
 - **`generateSelfSigned: false`** + **`secretName`**: Uses certificates from Kubernetes secret
 
-### 🌐 Exposing DatabunkerPro via Ingress
+### 🌐 Exposing Databunker Pro via Ingress
 
-To expose DatabunkerPro via Ingress, set your custom host parameter:
+To expose Databunker Pro via Ingress, set your custom host parameter:
 
 ```bash
   --set ingress.host=databunker.your-domain.com
@@ -268,7 +268,7 @@ This approach is recommended when you need to:
 
 ### Using Docker Compose
 
-DatabunkerPro can also be deployed using Docker Compose. We provide two options: Percona MySQL 8 and PostgreSQL.
+Databunker Pro can also be deployed using Docker Compose. We provide two options: Percona MySQL 8 and PostgreSQL.
 
 #### Using Percona MySQL 8
 
@@ -317,10 +317,18 @@ docker compose up -d
 #### How it works
 
 The `generate-env-files.sh` script will:
-* Create necessary directories
 * Generate secure random passwords
-* Create environment files for MySQL/PostgreSQL and DatabunkerPro
-* Set up proper permissions
+* Create environment files for MySQL/PostgreSQL and Databunker Pro
+* Generate self-signed SSL certificates for the database
+
+Database data is stored in a Docker named volume managed automatically by Docker Compose.
+
+To fully reset the database and start fresh, run:
+```bash
+docker compose down -v
+```
+
+The `-v` flag removes the named volumes, wiping all database data. Then run `docker compose up -d` to start again.
 
 ## Configuration
 
@@ -338,7 +346,7 @@ Before deploying to production, ensure you have:
 - [ ] Network security configured (VPC, security groups, etc.)
 
 ### Security
-- [ ] SSL/TLS certificates configured for DatabunkerPro
+- [ ] SSL/TLS certificates configured for Databunker Pro
 - [ ] Proper RBAC and service accounts configured
 - [ ] Secrets management in place (not hardcoded passwords)
 - [ ] Network policies configured
@@ -384,6 +392,6 @@ TRUNCATE TABLE usergroups RESTART IDENTITY;
 
 ## Additional Resources
 
-* [DatabunkerPro Documentation](https://databunker.org/databunker-pro-docs/api-and-sdk/)
+* [Databunker Pro Documentation](https://docs.databunker.org/)
 * [Kubernetes Production Best Practices](https://kubernetes.io/docs/concepts/security/)
 * [Database Security Best Practices](https://owasp.org/www-project-top-ten/)

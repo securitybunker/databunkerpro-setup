@@ -11,7 +11,7 @@ services:
       - .env/mysql.env
     restart: unless-stopped
     volumes:
-      - ./data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
       - ./.env/my-server.crt:/etc/mysql/ssl/server.crt:ro
       - ./.env/my-server.key:/etc/mysql/ssl/server.key:ro
     command: >
@@ -54,3 +54,6 @@ services:
       - mysql
     ports:
       - 3000:3000
+
+volumes:
+  mysql-data:

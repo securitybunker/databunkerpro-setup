@@ -12,6 +12,5 @@ else
 fi
 
 echo "Using: $DC"
-$DC -f ./docker-compose.yml down
-rm -rf data
+$DC -f ./docker-compose.yml down -v
 $DC -f ./docker-compose.yml up -d
