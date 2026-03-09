@@ -335,7 +335,27 @@ The `-v` flag removes the named volumes, wiping all database data. Then run `doc
 
 When `DATABUNKER_SETUPKEY` is set in `databunker.env`, Databunker Pro exposes a `POST /autoinstall` endpoint that lets you complete the setup without using the browser UI.
 
-After starting the services, wait a few seconds for the database to initialize, then call:
+**Step 1: Check if setup is required**
+
+Use the `GET /dbstatus` endpoint to check whether the database has already been initialized:
+
+```bash
+curl -s http://localhost:3000/dbstatus
+```
+
+If setup is required, the response will be:
+```json
+{"status":"ok","installed":false}
+```
+
+If the database is already installed:
+```json
+{"status":"ok","installed":true}
+```
+
+Only proceed with `/autoinstall` when `installed` is `false`.
+
+**Step 2: Run autoinstall**
 
 ```bash
 SETUPKEY=$(grep DATABUNKER_SETUPKEY .env/databunker.env | cut -d= -f2)
