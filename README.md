@@ -320,6 +320,7 @@ The `generate-env-files.sh` script will:
 * Generate secure random passwords
 * Create environment files for MySQL/PostgreSQL and Databunker Pro
 * Generate self-signed SSL certificates for the database
+* Generate a random `DATABUNKER_SETUPKEY` used for unattended installation
 
 Database data is stored in a Docker named volume managed automatically by Docker Compose.
 
@@ -329,6 +330,39 @@ docker compose down -v
 ```
 
 The `-v` flag removes the named volumes, wiping all database data. Then run `docker compose up -d` to start again.
+
+#### Unattended Installation
+
+When `DATABUNKER_SETUPKEY` is set in `databunker.env`, Databunker Pro exposes a `POST /autoinstall` endpoint that lets you complete the setup without using the browser UI.
+
+After starting the services, wait a few seconds for the database to initialize, then call:
+
+```bash
+SETUPKEY=$(grep DATABUNKER_SETUPKEY .env/databunker.env | cut -d= -f2)
+
+curl -s -X POST http://localhost:3000/autoinstall \
+  -d "setupkey=$SETUPKEY"
+```
+
+To include a license key:
+```bash
+curl -s -X POST http://localhost:3000/autoinstall \
+  -d "setupkey=$SETUPKEY" \
+  -d "licensekey=YOUR_LICENSE_KEY"
+```
+
+On success the response contains the credentials needed to operate Databunker Pro. **Save this output — it cannot be retrieved again.**
+
+```json
+{
+  "status": "ok",
+  "root_token": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "wrapping_key": "...",
+  "shamir_keys": ["...", "...", "...", "...", "..."]
+}
+```
+
+After the response is returned, the setup server shuts down automatically and the container restarts in normal operational mode. No further action is required.
 
 ## Configuration
 
