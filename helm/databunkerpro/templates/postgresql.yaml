@@ -9,7 +9,9 @@ metadata:
 data:
   init.sql: |
     CREATE ROLE mtenant NOSUPERUSER NOLOGIN;
+    CREATE ROLE madmin BYPASSRLS NOSUPERUSER NOLOGIN;
     GRANT mtenant TO {{ .Values.database.internal.postgresql.auth.username }};
+    GRANT madmin TO {{ .Values.database.internal.postgresql.auth.username }};
 ---
 apiVersion: apps/v1
 kind: Deployment

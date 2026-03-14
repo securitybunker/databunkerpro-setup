@@ -173,14 +173,18 @@ helm install databunkerpro databunkerpro/databunkerpro -f my-values.yaml
    ```sql
    CREATE ROLE bunkeruser NOSUPERUSER LOGIN PASSWORD 'your-secure-password';
    CREATE ROLE mtenant NOSUPERUSER NOLOGIN;
+   CREATE ROLE madmin BYPASSRLS NOSUPERUSER NOLOGIN;
    GRANT mtenant TO bunkeruser;
+   GRANT madmin TO bunkeruser;
    CREATE DATABASE databunkerdb OWNER bunkeruser;
    ```
 
 2. **When working with neondb**:
    ```sql
    CREATE ROLE mtenant NOSUPERUSER NOLOGIN;
+   CREATE ROLE madmin BYPASSRLS NOSUPERUSER NOLOGIN;
    GRANT mtenant TO neondb_owner;
+   GRANT madmin TO neondb_owner;
    CREATE DATABASE databunkerdb;
    ```
 
