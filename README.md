@@ -337,56 +337,21 @@ The `-v` flag removes the named volumes, wiping all database data. Then run `doc
 
 #### Unattended Installation
 
-When `DATABUNKER_SETUPKEY` is set in `databunker.env`, Databunker Pro exposes a `POST /autoinstall` endpoint that lets you complete the setup without using the browser UI.
+When `DATABUNKER_SETUPKEY` is set in `databunker.env`, Databunker Pro exposes a `POST /autoinstall` endpoint that lets you complete first-time setup over the API — no browser required — for CI/CD, infrastructure-as-code, and reproducible deployments.
 
-**Step 1: Check if setup is required**
-
-Use the `GET /dbstatus` endpoint to check whether the database has already been initialized:
+The flow is three HTTP calls: poll `GET /status` until ready, check `GET /dbstatus` (only `{"installed":false}` means setup is needed), then `POST /autoinstall` with your setup key to receive the vault credentials. On success the setup server shuts down and the container restarts in normal operational mode.
 
 ```bash
-curl -s http://localhost:3000/dbstatus
-```
-
-If setup is required, the response will be:
-```json
-{"status":"ok","installed":false}
-```
-
-If the database is already installed:
-```json
-{"status":"ok","installed":true}
-```
-
-Only proceed with `/autoinstall` when `installed` is `false`.
-
-**Step 2: Run autoinstall**
-
-```bash
-SETUPKEY=$(grep DATABUNKER_SETUPKEY .env/databunker.env | cut -d= -f2)
+SETUPKEY=$(grep '^DATABUNKER_SETUPKEY=' .env/databunker.env | cut -d= -f2-)
 
 curl -s -X POST http://localhost:3000/autoinstall \
-  -d "setupkey=$SETUPKEY"
+  --data-urlencode "setupkey=$SETUPKEY" \
+  --data-urlencode "licensekey=$LICENSEKEY"   # optional; omit for Trial mode
 ```
 
-To include a license key:
-```bash
-curl -s -X POST http://localhost:3000/autoinstall \
-  -d "setupkey=$SETUPKEY" \
-  -d "licensekey=YOUR_LICENSE_KEY"
-```
+> **Note:** Use `--data-urlencode` (not `-d`): license keys are base64 and may contain `+` or `/`, which `-d` would corrupt. **Save the response — the credentials cannot be retrieved again.**
 
-On success the response contains the credentials needed to operate Databunker Pro. **Save this output — it cannot be retrieved again.**
-
-```json
-{
-  "status": "ok",
-  "root_token": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  "wrapping_key": "...",
-  "shamir_keys": ["...", "...", "...", "...", "..."]
-}
-```
-
-After the response is returned, the setup server shuts down automatically and the container restarts in normal operational mode. No further action is required.
+For the full guide — readiness polling, the "already installed" (404) handling, Python examples, and external-database notes — see [Unattended installation](https://docs.databunker.org/pro/installation/unattended-installation).
 
 ## Configuration
 
