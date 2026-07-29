@@ -1,0 +1,38 @@
+services:
+  oracle:
+    image: gvenzl/oracle-free:slim
+    restart: unless-stopped
+    env_file:
+      - .env/oracle.env
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      # --- TLS (optional) --- mount the TCPS setup script to have the listener
+      # also serve encrypted connections on port 2484 (see enable-tls.sh + README).
+      # - ./enable-tls.sh:/container-entrypoint-startdb.d/enable-tls.sh
+    ports:
+      - "127.0.0.1:1521:1521"
+      # - "127.0.0.1:2484:2484"   # TLS (TCPS) listener — uncomment with enable-tls.sh
+  redis:
+    image: redis
+    restart: unless-stopped
+    env_file:
+      - .env/redis.env
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_USER_PASS"
+    ports:
+      - "127.0.0.1:6379:6379"
+  databunkerpro:
+    image: securitybunker/databunkerpro:latest
+    restart: unless-stopped
+    env_file:
+      - .env/databunker.env
+    volumes:
+      - ../conf/databunker.yaml:/databunker/conf/databunker.yaml
+    entrypoint: /bin/sh
+    command: -c "/databunker/bin/databunkerpro -db databunkerdb -conf /databunker/conf/databunker.yaml"
+    depends_on:
+      - oracle
+    ports:
+      - 3000:3000
+
+volumes:
+  oracle-data:
