@@ -6,12 +6,16 @@ services:
       - .env/oracle.env
     volumes:
       - oracle-data:/opt/oracle/oradata
-      # --- TLS (optional) --- mount the TCPS setup script to have the listener
-      # also serve encrypted connections on port 2484 (see enable-tls.sh + README).
-      # - ./enable-tls.sh:/container-entrypoint-startdb.d/enable-tls.sh
+      # --- TLS (optional) --- run `./generate-env-files.sh ssl` to pack the wallet,
+      # then uncomment the wallet mount + the 2484 port and mount the sqlnet.ora /
+      # listener.ora shown in generate-env-files.sh into the image's TNS_ADMIN
+      # (= $ORACLE_HOME/network/admin, e.g. /opt/oracle/product/26ai/dbhomeFree/network/admin):
+      # - ./.env/wallet:/opt/oracle/wallet
+      # - ./.env/sqlnet.ora:/opt/oracle/product/26ai/dbhomeFree/network/admin/sqlnet.ora
+      # - ./.env/listener.ora:/opt/oracle/product/26ai/dbhomeFree/network/admin/listener.ora
     ports:
       - "127.0.0.1:1521:1521"
-      # - "127.0.0.1:2484:2484"   # TLS (TCPS) listener — uncomment with enable-tls.sh
+      # - "127.0.0.1:2484:2484"   # TLS (TCPS) listener — uncomment with the TLS mounts above
   redis:
     image: redis
     restart: unless-stopped
