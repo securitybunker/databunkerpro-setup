@@ -66,7 +66,27 @@ docker compose pull
 docker compose up -d
 ```
 
-Then, open ``http://localhost:3000`` in your browser to finish the setup process.
+5. Follow the Databunker Pro logs and copy the access code:
+```bash
+./logs.sh
+```
+
+On first start Databunker Pro switches to installation mode and prints a one-time **Access code** that you will need in the browser:
+
+```
+2026/07/30 06:32:06 Databunkerpro version: 0.14.21
+2026/07/30 06:32:06 Loading configuration file: /databunker/conf/databunker.yaml
+2026/07/30 06:32:06 Processing environment variables
+2026/07/30 06:32:06 POSTGRESQL Databunker db name is: databunkerdb
+2026/07/30 06:32:08 Connected to redis server: redis:6379
+2026/07/30 06:32:08 Databunker tables are missing - switching to installation mode
+2026/07/30 06:32:08 Open HTTP listener 0.0.0.0:3000
+2026/07/30 06:32:08 Access code: 392629
+```
+
+Copy the access code, then press `Ctrl-C` to leave the log view — this stops following the logs only, the container keeps running.
+
+6. Open ``http://localhost:3000`` in your browser, enter the access code and follow [Generate admin credentials](https://docs.databunker.org/pro/installation/generate-admin-credentials) to finish the setup process.
 
 ### Using Docker Compose with Percona MySQL 8
 
@@ -89,6 +109,13 @@ docker compose pull
 ```bash
 docker compose up -d
 ```
+
+5. Follow the logs and copy the one-time **Access code** printed on first start:
+```bash
+./logs.sh
+```
+
+Press `Ctrl-C` to leave the log view, then open ``http://localhost:3000``, enter the access code and follow [Generate admin credentials](https://docs.databunker.org/pro/installation/generate-admin-credentials) to finish the setup process.
 
 ### Using Docker Compose with Oracle Database
 
@@ -113,6 +140,13 @@ docker compose pull
 ```bash
 docker compose up -d
 ```
+
+5. Follow the logs and copy the one-time **Access code** printed on first start:
+```bash
+./logs.sh
+```
+
+Oracle needs a few minutes to initialize before Databunker Pro connects, so keep the log view open until the access code appears. Press `Ctrl-C` to leave it, then open ``http://localhost:3000``, enter the access code and follow [Generate admin credentials](https://docs.databunker.org/pro/installation/generate-admin-credentials) to finish the setup process.
 
 Notes specific to Oracle:
 
@@ -263,7 +297,13 @@ After installing the databunkerpro Helm chart, you need to expose the Databunker
 kubectl port-forward service/databunkerpro 3000:3000
 ```
 
-Then, open ``http://localhost:3000`` in your browser to finish the setup process.
+The access code needed for the setup process is printed in the pod logs:
+
+```bash
+kubectl logs -l app.kubernetes.io/component=databunkerpro | grep "Access code"
+```
+
+Then, open ``http://localhost:3000`` in your browser, enter the access code and follow [Generate admin credentials](https://docs.databunker.org/pro/installation/generate-admin-credentials) to finish the setup process.
 
 > **Note:** The Helm chart currently supports PostgreSQL and MySQL. To run Databunker Pro on Kubernetes with Oracle Database, set the `ORACLE_*` variables listed above directly in the pod environment.
 
