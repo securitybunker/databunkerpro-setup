@@ -10,8 +10,6 @@ This repository contains Docker Compose projects and a Helm chart for deploying 
 | MySQL (Percona 8) | ✅ [`docker-compose-mysql`](docker-compose-mysql) | ✅ internal & external |
 | Oracle Database | ✅ [`docker-compose-oracle`](docker-compose-oracle) | not yet |
 
-The Oracle backend is built into the standard Databunker Pro image and is selected automatically when `ORACLE_HOST` is set. It uses the pure-Go `go-ora` driver, so no Oracle Instant Client is required. See the [Oracle Database backend](https://databunker.org/pro/installation/oracle-database) docs for details.
-
 ## ⚠️ Important: Database Recommendations
 
 **For production environments, we strongly recommend using dedicated database servers instead of running databases in Kubernetes or in a container.** This includes:
@@ -32,6 +30,17 @@ The Oracle backend is built into the standard Databunker Pro image and is select
 - **Monitoring**: Advanced monitoring and alerting capabilities
 
 ## Installation
+
+### Get the code
+
+The Docker Compose projects live in this repository, so clone it first:
+
+```bash
+git clone https://github.com/securitybunker/databunkerpro-setup.git
+cd databunkerpro-setup
+```
+
+All `cd docker-compose-*` commands below are relative to this directory. The Kubernetes/Helm installation does not require a clone — the chart is pulled from the Helm repository.
 
 ### 🚀 Quick Start: Docker Compose with PostgreSQL
 
@@ -168,9 +177,9 @@ For the full guide — readiness polling, the "already installed" (404) handling
 
 This applies to both deployment methods: point Databunker Pro at a managed or self-hosted database instead of running one alongside it. Databunker Pro creates its own tables and indexes on first start, so the user only needs the privileges to do that.
 
-Databunker Pro uses two extra roles beyond the login user: `mtenant` (multi-tenancy) and `madmin` (used to generate PII reports across all tenants).
-
 ### PostgreSQL (AWS RDS, Cloud SQL, Azure, self-hosted)
+
+On PostgreSQL, Databunker Pro uses two extra roles beyond the login user: `mtenant` (multi-tenancy) and `madmin` (used to generate PII reports across all tenants). MySQL and Oracle do not use them.
 
 ```sql
 CREATE ROLE bunkeruser NOSUPERUSER LOGIN PASSWORD 'your-secure-password';
