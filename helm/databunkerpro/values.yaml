@@ -134,7 +134,7 @@ database:
       sslMode: "require"
       image:
         repository: postgres
-        tag: "14"
+        tag: "16"
       persistence:
         enabled: true
         size: 8Gi

@@ -1,6 +1,6 @@
 services:
   postgresql:
-    image: postgres:14
+    image: postgres:16
     restart: unless-stopped
     env_file:
       - .env/postgresql-postgres.env
