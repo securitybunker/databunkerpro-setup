@@ -516,7 +516,7 @@ Before deploying to production, ensure you have:
 
 ## Troubleshooting
 ```
-kubectl run postgres-test --rm -i --restart=Never --image=postgres:14 -n namespace -- bash
+kubectl run postgres-test --rm -i --restart=Never --image=postgres:16 -n namespace -- bash
 psql -h databunkerpro-postgresql -U bunkeruser -d databunkerdb
 
 kubectl exec -ti databunkerpro_pod_name -n namespace -- sh
